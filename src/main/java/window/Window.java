@@ -1,4 +1,4 @@
-package graphics;
+package window;
 
 import org.lwjgl.system.MemoryStack;
 

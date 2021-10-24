@@ -1,4 +1,4 @@
-package graphics;
+package window;
 
 public interface WindowEventListener {
     void onFrameBufferSize(int width, int height);
