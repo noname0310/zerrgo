@@ -11,13 +11,7 @@ public final class ZerrgoEngine {
     private final Window window;
     private final WorldContainer world;
 
-    ZerrgoEngine(
-            int windowWidth,
-            int windowHeight,
-            String windowName,
-            boolean vsync,
-            WorldContainer world
-    ) {
+    ZerrgoEngine(EngineBuilder engineBuilder) {
         /* Set up an error callback. The default implementation
          * will print the error message in System.err. */
         var errorCallback = GLFWErrorCallback.createPrint(System.err).set();
@@ -26,14 +20,18 @@ public final class ZerrgoEngine {
         if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
 
         /* Create the window */
-        window = new Window(windowWidth, windowHeight, windowName);
+        window = new Window(
+                engineBuilder.getWindowHeight(),
+                engineBuilder.getWindowHeight(),
+                engineBuilder.getWindowName()
+        );
         window.handleEvent();
         window.makeContext();
-        window.vsync(vsync);
+        window.vsync(engineBuilder.vsync());
         window.show();
 
-        world.setWindow(window);
-        this.world = world;
+        this.world = engineBuilder.getWorldContainer();
+        world.initialize(window);
 
         glInit();
         loop();

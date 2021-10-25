@@ -2,7 +2,7 @@ package window;
 
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryStack;
-import window.event.KeyEventListener;
+import window.event.FrameBufferSizeEventListener;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.system.MemoryUtil.memAddress;
 
 public final class Window {
-    private List<KeyEventListener> listeners;
+    private List<FrameBufferSizeEventListener> frameBufferSizeEventListeners;
     private InputHandler inputHandler;
     private long handle;
     private int frameBufferWidth;
@@ -24,11 +24,11 @@ public final class Window {
     /**
      * create glfw window
      * @param width window width
-     * @param height  window height
+     * @param height window height
      * @param title window title
      */
     public Window(int width, int height, String title) {
-        listeners = new ArrayList<>();
+        frameBufferSizeEventListeners = new ArrayList<>();
 
         /* create window */
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -61,11 +61,7 @@ public final class Window {
         /* register event */
         inputHandler = new InputHandler(handle);
         inputHandler.handleEvent();
-        glfwSetKeyCallback(handle, this::onKey);
         glfwSetFramebufferSizeCallback(handle, this::onFramebufferSize);
-        glfwSetCursorPosCallback(handle, this::onMouseMove);
-        glfwSetMouseButtonCallback(handle, this::onMouseButton);
-        glfwSetScrollCallback(handle, this::onScroll);
     }
 
     public void unHandleEvent() {
@@ -78,13 +74,11 @@ public final class Window {
         glfwShowWindow(handle);
     }
 
-    public void destroy() { glfwDestroyWindow(handle); }
-
-    public boolean shouldClose() {
-        return glfwWindowShouldClose(handle);
-    }
-
     public void close() { glfwSetWindowShouldClose(handle, true); }
+
+    public boolean shouldClose() { return glfwWindowShouldClose(handle); }
+
+    public void destroy() { glfwDestroyWindow(handle); }
 
     public void pollEvents() { glfwPollEvents(); }
 
@@ -98,36 +92,9 @@ public final class Window {
 
     public int getFrameBufferHeight() { return frameBufferHeight; }
 
-    public void addListener(KeyEventListener eventListener) {
-        if (!listeners.contains(eventListener)) listeners.add(eventListener);
-    }
+    public InputHandler getInputHandler() { return inputHandler; }
 
-    public void removeListener(KeyEventListener eventListener) {
-        if (listeners.contains(eventListener)) listeners.remove(eventListener);
-    }
-
-    private void onKey(long window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-            glfwSetWindowShouldClose(window, true);
-    }
-
-    private void onFramebufferSize(long l, int i, int i1) {
-
-    }
-
-    private void onMouseMove(long l, double v, double v1) {
-    }
-
-    private void onMouseButton(long l, int i, int i1, int i2) {
-    }
-
-    private void onScroll(long l, double v, double v1) {
-
-    }
-
-    private void invokeEvent(int key, int action, int mods) {
-        for (final var listener : listeners) {
-            listener.onKey(key, action, mods);
-        }
+    private void onFramebufferSize(long window, int width, int height) {
+        for (final var listener : frameBufferSizeEventListeners) listener.onFrameBufferSize(width, height);
     }
 }

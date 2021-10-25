@@ -9,10 +9,13 @@ public final class EngineBuilder {
 
     public EngineBuilder() { }
 
-    public ZerrgoEngine run() {
+    /**
+     * build, initialize, and start game loop
+     */
+    public void run() {
         if (worldContainer == null)
             throw new RuntimeException("world should have initialized for run engine");
-        return new ZerrgoEngine(windowWidth, windowHeight, windowName, vsync, worldContainer);
+        new ZerrgoEngine(this);
     }
 
     public EngineBuilder world(WorldContainer worldContainer) {
@@ -35,4 +38,14 @@ public final class EngineBuilder {
         vsync = true;
         return this;
     }
+
+    int getWindowWidth() { return windowWidth; }
+
+    int getWindowHeight() { return windowHeight; }
+
+    String getWindowName() { return windowName; }
+
+    WorldContainer getWorldContainer() { return worldContainer; }
+
+    boolean vsync() { return vsync; }
 }
