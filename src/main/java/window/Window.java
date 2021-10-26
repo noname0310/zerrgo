@@ -1,23 +1,20 @@
 package window;
 
-import org.lwjgl.opengl.*;
+import org.lwjgl.glfw.Callbacks;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import window.event.FrameBufferSizeEventListener;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.system.MemoryUtil.memAddress;
-
 public final class Window {
-    private List<FrameBufferSizeEventListener> frameBufferSizeEventListeners;
+    private final List<FrameBufferSizeEventListener> frameBufferSizeEventListeners;
     private InputHandler inputHandler;
-    private long handle;
+    private final long handle;
     private int frameBufferWidth;
     private int frameBufferHeight;
 
@@ -31,28 +28,32 @@ public final class Window {
         frameBufferSizeEventListeners = new ArrayList<>();
 
         /* create window */
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        handle = glfwCreateWindow(width, height, title, NULL, NULL);
-        if (handle == NULL) throw new RuntimeException("Failed to create the GLFW window");
+        GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
+        handle = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
+        if (handle == MemoryUtil.NULL) throw new RuntimeException("Failed to create the GLFW window");
 
         /* get framebuffer size */
-        try (MemoryStack stack = stackPush()) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer framebufferSize = stack.mallocInt(2);
-            nglfwGetFramebufferSize(handle, memAddress(framebufferSize), memAddress(framebufferSize) + 4);
+            GLFW.nglfwGetFramebufferSize(
+                    handle,
+                    MemoryUtil.memAddress(framebufferSize),
+                    MemoryUtil.memAddress(framebufferSize) + 4
+            );
             frameBufferWidth = framebufferSize.get(0);
             frameBufferHeight = framebufferSize.get(1);
         }
     }
 
     public void vsync(boolean enable) {
-        if (enable) glfwSwapInterval(1);
-        else glfwSwapInterval(0);
+        if (enable) GLFW.glfwSwapInterval(1);
+        else GLFW.glfwSwapInterval(0);
     }
 
     public void makeContext() {
         /* Make the OpenGL context current */
-        glfwMakeContextCurrent(handle);
+        GLFW.glfwMakeContextCurrent(handle);
         /* ensure capabilities */
         GL.createCapabilities();
     }
@@ -61,32 +62,32 @@ public final class Window {
         /* register event */
         inputHandler = new InputHandler(handle);
         inputHandler.handleEvent();
-        glfwSetFramebufferSizeCallback(handle, this::onFramebufferSize);
+        GLFW.glfwSetFramebufferSizeCallback(handle, this::onFramebufferSize);
     }
 
     public void unHandleEvent() {
         /* Free the window callbacks and destroy the window */
-        glfwFreeCallbacks(handle);
+        Callbacks.glfwFreeCallbacks(handle);
     }
 
     public void show() {
         /* Make the window visible */
-        glfwShowWindow(handle);
+        GLFW.glfwShowWindow(handle);
     }
 
-    public void close() { glfwSetWindowShouldClose(handle, true); }
+    public void close() { GLFW.glfwSetWindowShouldClose(handle, true); }
 
-    public boolean shouldClose() { return glfwWindowShouldClose(handle); }
+    public boolean shouldClose() { return GLFW.glfwWindowShouldClose(handle); }
 
-    public void destroy() { glfwDestroyWindow(handle); }
+    public void destroy() { GLFW.glfwDestroyWindow(handle); }
 
-    public void pollEvents() { glfwPollEvents(); }
+    public void pollEvents() { GLFW.glfwPollEvents(); }
 
-    public void swapBuffers() { glfwSwapBuffers(handle); }
+    public void swapBuffers() { GLFW.glfwSwapBuffers(handle); }
 
-    public void rename(String name) { glfwSetWindowTitle(handle, name);}
+    public void rename(String name) { GLFW.glfwSetWindowTitle(handle, name);}
 
-    public void resize(int width, int height) { glfwSetWindowSize(handle, width, height); }
+    public void resize(int width, int height) { GLFW.glfwSetWindowSize(handle, width, height); }
 
     public int getFrameBufferWidth() { return frameBufferWidth; }
 
@@ -94,7 +95,17 @@ public final class Window {
 
     public InputHandler getInputHandler() { return inputHandler; }
 
+    public void addOnFramebufferSizeListener(FrameBufferSizeEventListener eventListener) {
+        if (!frameBufferSizeEventListeners.contains(eventListener)) frameBufferSizeEventListeners.add(eventListener);
+    }
+
+    public void removeOnFramebufferSizeListener(FrameBufferSizeEventListener eventListener) {
+        frameBufferSizeEventListeners.remove(eventListener);
+    }
+
     private void onFramebufferSize(long window, int width, int height) {
+        frameBufferWidth = width;
+        frameBufferHeight = height;
         for (final var listener : frameBufferSizeEventListeners) listener.onFrameBufferSize(width, height);
     }
 }

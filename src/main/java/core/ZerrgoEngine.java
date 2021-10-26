@@ -1,11 +1,9 @@
 package core;
 
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL11;
 import window.Window;
-
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 
 public final class ZerrgoEngine {
     private final Window window;
@@ -17,11 +15,11 @@ public final class ZerrgoEngine {
         var errorCallback = GLFWErrorCallback.createPrint(System.err).set();
 
         /* init glfw */
-        if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
+        if (!GLFW.glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
 
         /* Create the window */
         window = new Window(
-                engineBuilder.getWindowHeight(),
+                engineBuilder.getWindowWidth(),
                 engineBuilder.getWindowHeight(),
                 engineBuilder.getWindowName()
         );
@@ -42,21 +40,21 @@ public final class ZerrgoEngine {
         window.destroy();
 
         /* Terminate GLFW and free the error callback */
-        glfwTerminate();
+        GLFW.glfwTerminate();
         errorCallback.free();
     }
 
     private void glInit() {
         /* OpenGL configures. */
-        glViewport(0, 0, window.getFrameBufferWidth(), window.getFrameBufferHeight());
-        glEnable(GL11.GL_CULL_FACE);
-        glEnable(GL11.GL_BLEND);
-        glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glViewport(0, 0, window.getFrameBufferWidth(), window.getFrameBufferHeight());
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     private void loop() {
         while(!window.shouldClose()) {
-            glClear(GL_COLOR_BUFFER_BIT); // clear the framebuffer
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT); // clear the framebuffer
 
             world.update();
             world.render();
