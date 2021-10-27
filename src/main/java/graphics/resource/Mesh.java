@@ -1,7 +1,6 @@
 package graphics.resource;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import java.lang.ref.Cleaner;
@@ -14,6 +13,23 @@ public final class Mesh {
     private final int vertexAttributesId;
     private final int indicesId;
     private final int indicesCount;
+
+    private record State(
+            int vertexAttributesId,
+            int indicesId,
+            int indicesCount
+    ) implements Runnable {
+        @Override
+        public void run() {
+            IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
+            intBuffer.reset();
+            intBuffer.put(vertexAttributesId);
+            GL15.glDeleteBuffers(intBuffer);
+            intBuffer.reset();
+            intBuffer.put(indicesId);
+            GL15.glDeleteBuffers(intBuffer);
+        }
+    }
 
     Mesh(VertexContainer vertexContainer, int[] indices) {
         if (vertexContainer.positions().length <= 0) {
@@ -31,14 +47,7 @@ public final class Mesh {
         int numMissingUv = 0;
         FloatBuffer verticeAttributes;
 
-        CLEANER.register(this, () -> {
-            IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
-            intBuffer.reset();
-            intBuffer.put(vertexAttributesId);
-            GL15.glDeleteBuffers(intBuffer);
-            intBuffer.reset();
-            intBuffer.put(indicesId);
-            GL15.glDeleteBuffers(intBuffer);
-        });
+        var state = new State(vertexAttributesId, indicesId, indicesCount);
+        CLEANER.register(this, state);
     }
 }
