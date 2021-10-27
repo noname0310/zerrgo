@@ -1,9 +1,5 @@
 import core.EngineBuilder;
-import core.TestWorld;
-import core.ZerrgoEngine;
-import window.Window;
-
-import static org.lwjgl.glfw.GLFW.*;
+import world.HierarchicalWorld;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,7 +7,7 @@ public class Main {
                 .windowSize(1280, 720)
                 .windowName("hello world")
                 .enableVsync()
-                .world(new TestWorld())
+                .world(new HierarchicalWorld())
                 .run();
     }
 }
