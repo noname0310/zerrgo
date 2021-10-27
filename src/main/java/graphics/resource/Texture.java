@@ -1,12 +1,9 @@
 package graphics.resource;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 
 import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 public final class Texture {
     private static final Cleaner CLEANER = Cleaner.create();
@@ -16,7 +13,7 @@ public final class Texture {
     private final int width;
     private final int height;
 
-    private record State(int id) implements Runnable {
+    private record CleanerRunnable(int id) implements Runnable {
         @Override
         public void run() { GL11.glDeleteTextures(id); }
     }
@@ -43,8 +40,8 @@ public final class Texture {
         // unbind + free data.
         this.unbind();
 
-        var state = new State(id);
-        CLEANER.register(this, state);
+        var cleanerRunnable = new CleanerRunnable(id);
+        CLEANER.register(this, cleanerRunnable);
     }
 
     void setParameter(int name, int value) {

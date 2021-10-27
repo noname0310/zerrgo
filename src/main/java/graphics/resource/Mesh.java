@@ -14,7 +14,7 @@ public final class Mesh {
     private final int indicesId;
     private final int indicesCount;
 
-    private record State(
+    private record CleanerRunnable(
             int vertexAttributesId,
             int indicesId,
             int indicesCount
@@ -47,7 +47,7 @@ public final class Mesh {
         int numMissingUv = 0;
         FloatBuffer verticeAttributes;
 
-        var state = new State(vertexAttributesId, indicesId, indicesCount);
-        CLEANER.register(this, state);
+        var cleanerRunnable = new CleanerRunnable(vertexAttributesId, indicesId, indicesCount);
+        CLEANER.register(this, cleanerRunnable);
     }
 }
