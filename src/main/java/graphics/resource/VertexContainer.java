@@ -1,6 +1,6 @@
 package graphics.resource;
 
-public record VertexContainer(
+public final record VertexContainer(
         float[] positions,
         float[] uv,
         float[] normal
