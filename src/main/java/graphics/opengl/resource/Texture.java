@@ -1,4 +1,4 @@
-package graphics.resource;
+package graphics.opengl.resource;
 
 import org.lwjgl.opengl.GL11;
 
@@ -15,10 +15,12 @@ public final class Texture {
 
     private record CleanerRunnable(int id) implements Runnable {
         @Override
-        public void run() { GL11.glDeleteTextures(id); }
+        public void run() { GL11.glDeleteTextures(id); } //@todo make global dispose queue
     }
 
-    Texture(String name, int width, int height, ByteBuffer data) {
+    public record TextureParameter(int name, int value) { }
+
+    Texture(String name, int width, int height, ByteBuffer data, TextureParameter...parameters) {
         this.name = name;
         this.width = width;
         this.height = height;
@@ -27,18 +29,19 @@ public final class Texture {
         id = GL11.glGenTextures();
 
         // bind texture
-        this.bind();
-        this.setParameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-        this.setParameter(GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
-        this.setParameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        this.setParameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        bind();
+        setParameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+        setParameter(GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+        setParameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        setParameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        for (var item : parameters) setParameter(item.name(), item.value());
 
         // put image data.
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0,GL11.GL_RGBA8, width,
                 height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, data);
 
-        // unbind + free data.
-        this.unbind();
+        // unbind
+        unbind();
 
         var cleanerRunnable = new CleanerRunnable(id);
         CLEANER.register(this, cleanerRunnable);

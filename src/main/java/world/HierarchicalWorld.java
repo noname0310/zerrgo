@@ -1,22 +1,19 @@
 package world;
 
-import core.WorldContainer;
-import window.Window;
+import core.graphics.RenderScheduler;
+import core.world.WorldContainer;
+import window.glfw.GlfwWindow;
 
 public class HierarchicalWorld implements WorldContainer {
-    private Window window;
+    private GlfwWindow window;
+
     @Override
-    public void initialize(Window window) {
+    public void initialize(GlfwWindow window, RenderScheduler renderScheduler) {
         this.window = window;
     }
 
     @Override
     public void update() {
-
-    }
-
-    @Override
-    public void render() {
 
     }
 }

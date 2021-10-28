@@ -1,4 +1,4 @@
-package graphics.resource;
+package graphics.opengl.resource;
 
 import org.joml.Vector4f;
 

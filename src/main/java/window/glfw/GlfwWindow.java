@@ -1,19 +1,22 @@
-package window;
+package window.glfw;
 
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import window.event.FrameBufferSizeEventListener;
+import core.window.event.FrameBufferSizeEventListener;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Window {
+public final class GlfwWindow {
+    private static GLFWErrorCallback errorCallback;
+
     private final List<FrameBufferSizeEventListener> frameBufferSizeEventListeners;
-    private InputHandler inputHandler;
+    private GlfwInputHandler inputHandler;
     private final long handle;
     private int frameBufferWidth;
     private int frameBufferHeight;
@@ -24,7 +27,7 @@ public final class Window {
      * @param height window height
      * @param title window title
      */
-    public Window(int width, int height, String title) {
+    public GlfwWindow(int width, int height, String title) {
         frameBufferSizeEventListeners = new ArrayList<>();
 
         /* create window */
@@ -60,7 +63,7 @@ public final class Window {
 
     public void handleEvent() {
         /* register event */
-        inputHandler = new InputHandler(handle);
+        inputHandler = new GlfwInputHandler(handle);
         inputHandler.handleEvent();
         GLFW.glfwSetFramebufferSizeCallback(handle, this::onFramebufferSize);
     }
@@ -93,7 +96,7 @@ public final class Window {
 
     public int getFrameBufferHeight() { return frameBufferHeight; }
 
-    public InputHandler getInputHandler() { return inputHandler; }
+    public GlfwInputHandler getInputHandler() { return inputHandler; }
 
     public void addOnFramebufferSizeListener(FrameBufferSizeEventListener eventListener) {
         if (!frameBufferSizeEventListeners.contains(eventListener)) frameBufferSizeEventListeners.add(eventListener);
@@ -107,5 +110,20 @@ public final class Window {
         frameBufferWidth = width;
         frameBufferHeight = height;
         for (final var listener : frameBufferSizeEventListeners) listener.onFrameBufferSize(width, height);
+    }
+
+    public static void globalInitialize() {
+        /* Set up an error callback. The default implementation
+         * will print the error message in System.err. */
+        errorCallback = GLFWErrorCallback.createPrint(System.err).set();
+
+        /* init glfw */
+        if (!GLFW.glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
+    }
+
+    public static void globalFinalize() {
+        /* Terminate GLFW and free the error callback */
+        GLFW.glfwTerminate();
+        errorCallback.free();
     }
 }

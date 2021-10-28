@@ -1,4 +1,4 @@
-package window.event;
+package core.window.event;
 
 public interface FrameBufferSizeEventListener {
     /**

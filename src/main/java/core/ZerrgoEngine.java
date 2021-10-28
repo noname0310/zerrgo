@@ -1,24 +1,22 @@
 package core;
 
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL11;
-import window.Window;
+import core.graphics.Renderer;
+import core.world.WorldContainer;
+import window.glfw.GlfwWindow;
+
+import java.util.logging.Logger;
 
 public final class ZerrgoEngine {
-    private final Window window;
+    private final static Logger LOGGER = Logger.getGlobal();
+    private final GlfwWindow window;
+    private final Renderer renderer;
     private final WorldContainer world;
 
     ZerrgoEngine(EngineBuilder engineBuilder) {
-        /* Set up an error callback. The default implementation
-         * will print the error message in System.err. */
-        var errorCallback = GLFWErrorCallback.createPrint(System.err).set();
-
-        /* init glfw */
-        if (!GLFW.glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
+        GlfwWindow.globalInitialize();
 
         /* Create the window */
-        window = new Window(
+        window = new GlfwWindow(
                 engineBuilder.getWindowWidth(),
                 engineBuilder.getWindowHeight(),
                 engineBuilder.getWindowName()
@@ -28,10 +26,13 @@ public final class ZerrgoEngine {
         window.vsync(engineBuilder.vsync());
         window.show();
 
-        this.world = engineBuilder.getWorldContainer();
-        world.initialize(window);
+        this.renderer = engineBuilder.getRenderer();
 
-        glInit();
+        this.world = engineBuilder.getWorldContainer();
+        world.initialize(window, renderer.getScheduler());
+
+        renderer.initialize(window.getFrameBufferWidth(), window.getFrameBufferHeight());
+        window.addOnFramebufferSizeListener(renderer::resizeFrameBuffer);
         loop();
 
         window.unHandleEvent();
@@ -39,28 +40,17 @@ public final class ZerrgoEngine {
         /*Destroy the window */
         window.destroy();
 
-        /* Terminate GLFW and free the error callback */
-        GLFW.glfwTerminate();
-        errorCallback.free();
-    }
-
-    private void glInit() {
-        /* OpenGL configures. */
-        GL11.glViewport(0, 0, window.getFrameBufferWidth(), window.getFrameBufferHeight());
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GlfwWindow.globalFinalize();
     }
 
     private void loop() {
         while(!window.shouldClose()) {
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT); // clear the framebuffer
-
             world.update();
-            world.render();
-
+            renderer.render();
             window.swapBuffers();
             window.pollEvents();
         }
     }
+
+    public static Logger Logger() { return LOGGER; }
 }

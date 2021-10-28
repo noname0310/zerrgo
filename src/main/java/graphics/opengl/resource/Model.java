@@ -1,4 +1,4 @@
-package graphics.resource;
+package graphics.opengl.resource;
 
 public final class Model {
     private final String name;
@@ -18,7 +18,7 @@ public final class Model {
 
         if (meshes.length != materials.length) {
             throw new RuntimeException("materials count must equal to meshes count! (meshes.length: "
-                    + meshes.length + "matrials.length" + materials.length + ")");
+                    + meshes.length + "materials.length" + materials.length + ")");
         }
     }
 

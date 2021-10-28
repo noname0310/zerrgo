@@ -1,4 +1,4 @@
-package window.event;
+package core.window.event;
 
 public interface KeyEventListener {
     /**
@@ -7,5 +7,5 @@ public interface KeyEventListener {
      * @param action GLFW_PRESS, GLFW_REPEAT or GLFW_RELEASE. it can be GLFW_KEY_UNKNOWN if GLFW lacks a key token
      * @param mods modifier key flags e.g Shift, Control, Alt ... it defined like GLFW_MOD_SHIFT
      */
-    void onKey(int key, int action, int mods);
+    void onKey(int key, int action, int mods); //@todo input value must be more generic
 }

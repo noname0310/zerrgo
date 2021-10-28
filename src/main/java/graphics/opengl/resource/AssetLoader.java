@@ -1,4 +1,4 @@
-package graphics.resource;
+package graphics.opengl.resource;
 
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
