@@ -1,12 +1,14 @@
 package core;
 
 import core.graphics.Renderer;
+import core.window.WindowFactory;
 import core.world.WorldContainer;
 
 public final class EngineBuilder {
     private int windowWidth = 1280;
     private int windowHeight = 720;
     private String windowName = "zerrgo engine";
+    private WindowFactory windowFactory;
     private Renderer renderer;
     private WorldContainer worldContainer;
     private boolean vsync;
@@ -17,11 +19,18 @@ public final class EngineBuilder {
      * build, initialize, and start game loop
      */
     public void run() {
+        if (windowFactory == null)
+            throw new RuntimeException("window factory should have initialized for run engine");
         if (renderer == null)
             throw new RuntimeException("renderer should have initialized for run engine");
         if (worldContainer == null)
             throw new RuntimeException("world should have initialized for run engine");
         new ZerrgoEngine(this);
+    }
+
+    public EngineBuilder window(WindowFactory windowFactory) {
+        this.windowFactory = windowFactory;
+        return this;
     }
 
     public EngineBuilder renderer(Renderer renderer) {
@@ -55,6 +64,8 @@ public final class EngineBuilder {
     int getWindowHeight() { return windowHeight; }
 
     String getWindowName() { return windowName; }
+
+    WindowFactory getWindowFactory() { return windowFactory; }
 
     Renderer getRenderer() { return renderer; }
 

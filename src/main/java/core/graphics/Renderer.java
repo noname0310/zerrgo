@@ -8,4 +8,6 @@ public interface Renderer {
     void render();
 
     RenderScheduler getScheduler();
+
+    void disposeDeadResources();
 }

@@ -1,5 +1,6 @@
 package window.glfw;
 
+import core.window.Window;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -12,7 +13,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class GlfwWindow {
+public final class GlfwWindow implements Window {
     private static GLFWErrorCallback errorCallback;
 
     private final List<FrameBufferSizeEventListener> frameBufferSizeEventListeners;
@@ -21,13 +22,7 @@ public final class GlfwWindow {
     private int frameBufferWidth;
     private int frameBufferHeight;
 
-    /**
-     * create glfw window
-     * @param width window width
-     * @param height window height
-     * @param title window title
-     */
-    public GlfwWindow(int width, int height, String title) {
+    GlfwWindow(int width, int height, String title) {
         frameBufferSizeEventListeners = new ArrayList<>();
 
         /* create window */
@@ -49,11 +44,13 @@ public final class GlfwWindow {
         }
     }
 
+    @Override
     public void vsync(boolean enable) {
         if (enable) GLFW.glfwSwapInterval(1);
         else GLFW.glfwSwapInterval(0);
     }
 
+    @Override
     public void makeContext() {
         /* Make the OpenGL context current */
         GLFW.glfwMakeContextCurrent(handle);
@@ -61,6 +58,7 @@ public final class GlfwWindow {
         GL.createCapabilities();
     }
 
+    @Override
     public void handleEvent() {
         /* register event */
         inputHandler = new GlfwInputHandler(handle);
@@ -68,40 +66,54 @@ public final class GlfwWindow {
         GLFW.glfwSetFramebufferSizeCallback(handle, this::onFramebufferSize);
     }
 
+    @Override
     public void unHandleEvent() {
         /* Free the window callbacks and destroy the window */
         Callbacks.glfwFreeCallbacks(handle);
     }
 
+    @Override
     public void show() {
         /* Make the window visible */
         GLFW.glfwShowWindow(handle);
     }
 
+    @Override
     public void close() { GLFW.glfwSetWindowShouldClose(handle, true); }
 
+    @Override
     public boolean shouldClose() { return GLFW.glfwWindowShouldClose(handle); }
 
+    @Override
     public void destroy() { GLFW.glfwDestroyWindow(handle); }
 
+    @Override
     public void pollEvents() { GLFW.glfwPollEvents(); }
 
+    @Override
     public void swapBuffers() { GLFW.glfwSwapBuffers(handle); }
 
+    @Override
     public void rename(String name) { GLFW.glfwSetWindowTitle(handle, name);}
 
+    @Override
     public void resize(int width, int height) { GLFW.glfwSetWindowSize(handle, width, height); }
 
+    @Override
     public int getFrameBufferWidth() { return frameBufferWidth; }
 
+    @Override
     public int getFrameBufferHeight() { return frameBufferHeight; }
 
+    @Override
     public GlfwInputHandler getInputHandler() { return inputHandler; }
 
+    @Override
     public void addOnFramebufferSizeListener(FrameBufferSizeEventListener eventListener) {
         if (!frameBufferSizeEventListeners.contains(eventListener)) frameBufferSizeEventListeners.add(eventListener);
     }
 
+    @Override
     public void removeOnFramebufferSizeListener(FrameBufferSizeEventListener eventListener) {
         frameBufferSizeEventListeners.remove(eventListener);
     }

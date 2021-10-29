@@ -34,4 +34,9 @@ public class OpenglRenderer implements Renderer {
     public RenderScheduler getScheduler() {
         return openglRenderScheduler;
     }
+
+    @Override
+    public void disposeDeadResources() {
+        AssetLoader.disposeDeadResources();
+    }
 }

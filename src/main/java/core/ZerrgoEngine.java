@@ -1,22 +1,22 @@
 package core;
 
 import core.graphics.Renderer;
+import core.window.Window;
 import core.world.WorldContainer;
-import window.glfw.GlfwWindow;
 
 import java.util.logging.Logger;
 
 public final class ZerrgoEngine {
     private final static Logger LOGGER = Logger.getGlobal();
-    private final GlfwWindow window;
+    private final Window window;
     private final Renderer renderer;
     private final WorldContainer world;
 
     ZerrgoEngine(EngineBuilder engineBuilder) {
-        GlfwWindow.globalInitialize();
+        engineBuilder.getWindowFactory().globalInitialize();
 
         /* Create the window */
-        window = new GlfwWindow(
+        window = engineBuilder.getWindowFactory().createWindow(
                 engineBuilder.getWindowWidth(),
                 engineBuilder.getWindowHeight(),
                 engineBuilder.getWindowName()
@@ -40,13 +40,14 @@ public final class ZerrgoEngine {
         /*Destroy the window */
         window.destroy();
 
-        GlfwWindow.globalFinalize();
+        engineBuilder.getWindowFactory().globalFinalize();
     }
 
     private void loop() {
         while(!window.shouldClose()) {
             world.update();
             renderer.render();
+            renderer.disposeDeadResources();
             window.swapBuffers();
             window.pollEvents();
         }

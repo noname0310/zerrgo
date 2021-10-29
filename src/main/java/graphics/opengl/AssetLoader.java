@@ -1,15 +1,19 @@
-package graphics.opengl.resource;
+package graphics.opengl;
 
+import core.graphics.resource.DisposeDelegate;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Map;
+import java.util.Queue;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class AssetLoader {
     private static final Map<String, Texture> TEXTURES = new WeakHashMap<>();
+    private static final Queue<DisposeDelegate> DISPOSE_DELEGATES = new ConcurrentLinkedQueue<>();
 
     private AssetLoader() { }
 
@@ -33,5 +37,15 @@ public final class AssetLoader {
                     + System.lineSeparator() + STBImage.stbi_failure_reason());
         }
         return TEXTURES.put(path, new Texture(path, width.get(0), height.get(0), image));
+    }
+
+    static void addDisposeDelegate(DisposeDelegate disposeDelegate) { DISPOSE_DELEGATES.add(disposeDelegate); }
+
+    /**
+     * dispose dead resources
+     * it should have call by main game thread
+     */
+    public static void disposeDeadResources() {
+        while (!DISPOSE_DELEGATES.isEmpty()) DISPOSE_DELEGATES.poll().dispose();
     }
 }

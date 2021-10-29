@@ -1,4 +1,4 @@
-package graphics.opengl.resource;
+package graphics.opengl;
 
 import core.ZerrgoEngine;
 import org.lwjgl.BufferUtils;

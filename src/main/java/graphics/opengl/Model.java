@@ -1,4 +1,4 @@
-package graphics.opengl.resource;
+package graphics.opengl;
 
 public final class Model {
     private final String name;

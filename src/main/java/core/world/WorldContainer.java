@@ -1,7 +1,7 @@
 package core.world;
 
 import core.graphics.RenderScheduler;
-import window.glfw.GlfwWindow;
+import core.window.Window;
 
 public interface WorldContainer {
     /**
@@ -9,7 +9,7 @@ public interface WorldContainer {
      * @param window global window variable
      * @param renderScheduler global render scheduler variable
      */
-    void initialize(GlfwWindow window, RenderScheduler renderScheduler);
+    void initialize(Window window, RenderScheduler renderScheduler);
 
     /**
      * call by game loop when update World
