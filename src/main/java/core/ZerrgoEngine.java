@@ -4,13 +4,43 @@ import core.graphics.Renderer;
 import core.window.Window;
 import core.world.WorldContainer;
 
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.logging.*;
 
 public final class ZerrgoEngine {
     private final static Logger LOGGER = Logger.getGlobal();
     private final Window window;
     private final Renderer renderer;
     private final WorldContainer world;
+
+    static {
+        /* remove default handler */
+        var rootLogger = Logger.getLogger("");
+        Handler[] handlers = rootLogger.getHandlers();
+        if (handlers[0] instanceof ConsoleHandler) {
+            rootLogger.removeHandler(handlers[0]);
+        }
+
+        LOGGER.setLevel(Level.INFO);
+
+        var consoleHandler = new ConsoleHandler();
+        FileHandler fileHandler = null;
+        try {
+            fileHandler = new FileHandler("message.log", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        var consoleFormatter = new LogFormatter(true);
+        var fileFormatter = new LogFormatter(false);
+
+        consoleHandler.setFormatter(consoleFormatter);
+        assert fileHandler != null;
+        fileHandler.setFormatter(fileFormatter);
+
+        LOGGER.addHandler(consoleHandler);
+        LOGGER.addHandler(fileHandler);
+    }
 
     ZerrgoEngine(EngineBuilder engineBuilder) {
         engineBuilder.getWindowFactory().globalInitialize();
