@@ -31,15 +31,15 @@ public final class ZerrgoEngine {
             e.printStackTrace();
         }
 
+        if (fileHandler != null) {
+            var fileFormatter = new LogFormatter(false);
+            fileHandler.setFormatter(fileFormatter);
+            LOGGER.addHandler(fileHandler);
+        }
+
         var consoleFormatter = new LogFormatter(true);
-        var fileFormatter = new LogFormatter(false);
-
         consoleHandler.setFormatter(consoleFormatter);
-        assert fileHandler != null;
-        fileHandler.setFormatter(fileFormatter);
-
         LOGGER.addHandler(consoleHandler);
-        LOGGER.addHandler(fileHandler);
     }
 
     ZerrgoEngine(EngineBuilder engineBuilder) {
