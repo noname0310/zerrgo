@@ -7,7 +7,7 @@ import core.graphics.resource.VertexContainer;
 import java.util.Optional;
 
 public interface AssetLoader {
-    Texture getTexture(String name);
+    Texture getTexture(String path);
 
     Mesh addMesh(String name, VertexContainer vertexContainer, int[] indices);
 

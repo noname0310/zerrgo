@@ -1,5 +1,6 @@
 package graphics.opengl;
 
+import core.ZerrgoEngine;
 import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.Cleaner;
@@ -16,7 +17,10 @@ public final class Texture implements core.graphics.resource.Texture {
 
     private record CleanerRunnable(AssetDisposer assetDisposer, int id) implements Runnable {
         @Override
-        public void run() { assetDisposer.addDisposeDelegate(() -> GL11.glDeleteTextures(id)); }
+        public void run() { assetDisposer.addDisposeDelegate(() -> {
+            ZerrgoEngine.Logger().info("disposing texture (id: " + id + ")");
+            GL11.glDeleteTextures(id);
+        }); }
     }
 
     public record TextureParameter(int name, int value) { }

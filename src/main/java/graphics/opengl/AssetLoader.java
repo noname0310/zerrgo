@@ -4,15 +4,32 @@ import core.graphics.resource.VertexContainer;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 
 public final class AssetLoader implements core.graphics.AssetLoader {
-    private final Map<String, Texture> textures = new WeakHashMap<>();
-    private final Map<String, Mesh> meshes = new WeakHashMap<>();
+    private static class WeakValueReference<K, V> extends WeakReference<V>
+    {
+        private final K key;
+
+        public WeakValueReference(K key, V value, ReferenceQueue<V> referenceQueue)
+        {
+            super(value, referenceQueue);
+            this.key = key;
+        }
+    }
+
+    private final Map<String, WeakValueReference<String, Texture>> textures = new HashMap<>();
+    private final ReferenceQueue<Texture> texturesRefQueue = new ReferenceQueue<>();
+
+    private final Map<String, WeakValueReference<String, Mesh>> meshes = new HashMap<>();
+    private final ReferenceQueue<Mesh> meshesRefQueue = new ReferenceQueue<>();
+
     private final AssetDisposer assetDisposer;
 
     AssetLoader(AssetDisposer assetDisposer) {
@@ -20,8 +37,9 @@ public final class AssetLoader implements core.graphics.AssetLoader {
     }
 
     public core.graphics.resource.Texture getTexture(String path) {
+        cleanMap(texturesRefQueue, textures);
         var texture = textures.get(path);
-        if (texture != null) return texture;
+        if (texture != null && texture.get() != null) return texture.get();
 
         // create buffers to store data.
         ByteBuffer image;
@@ -38,16 +56,41 @@ public final class AssetLoader implements core.graphics.AssetLoader {
             throw new RuntimeException("Failed to load a texture file!"
                     + System.lineSeparator() + STBImage.stbi_failure_reason());
         }
-        return textures.put(path, new Texture(assetDisposer, path, width.get(0), height.get(0), image));
+
+        var newTexture = new Texture(assetDisposer, path, width.get(0), height.get(0), image);
+        textures.put(
+                path,
+                new WeakValueReference<>(path, newTexture, texturesRefQueue)
+        );
+        return newTexture;
     }
 
     public core.graphics.resource.Mesh addMesh(String name, VertexContainer vertexContainer, int[] indices) {
+        cleanMap(meshesRefQueue, meshes);
         var mesh = meshes.get(name);
-        if (mesh != null) return mesh;
-        return meshes.put(name, new Mesh(assetDisposer, name, vertexContainer, indices));
+        if (mesh != null && mesh.get() != null) return mesh.get();
+        var newMesh = new Mesh(assetDisposer, name, vertexContainer, indices);
+        meshes.put(name, new WeakValueReference<>(name, newMesh, meshesRefQueue));
+        return newMesh;
     }
 
     public Optional<core.graphics.resource.Mesh> getMesh(String name) {
-        return Optional.ofNullable(meshes.get(name));
+        cleanMap(meshesRefQueue, meshes);
+        var mesh = meshes.get(name);
+        if (mesh != null) return Optional.ofNullable(mesh.get());
+        else return Optional.empty();
+    }
+
+    /**
+     * item in referenceQueue must instance of WeakValueReference<K, V>
+     */
+    @SuppressWarnings("unchecked")
+    private <K, V> void cleanMap(ReferenceQueue<V> referenceQueue, Map<K, WeakValueReference<K, V>> map) {
+        WeakValueReference<K, V> weakValueReference;
+        while ((weakValueReference = (WeakValueReference<K, V>) referenceQueue.poll()) != null) {
+            if (weakValueReference == map.get(weakValueReference.key)) {
+                map.remove(weakValueReference.key);
+            }
+        }
     }
 }

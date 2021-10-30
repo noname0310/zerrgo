@@ -41,6 +41,7 @@ public final class Mesh implements core.graphics.resource.Mesh {
     ) implements Runnable {
         @Override
         public void run() {
+            ZerrgoEngine.Logger().info("disposing mesh (vao id: " + vertexAttributesId + ")");
             assetDisposer.addDisposeDelegate(() -> {
                 IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
                 intBuffer.reset();
