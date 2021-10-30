@@ -24,11 +24,16 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         }
     }
 
+    private static record ShaderKey(String vertexShaderPath, String fragmentShaderPath) { }
+
     private final Map<String, WeakValueReference<String, Texture>> textures = new HashMap<>();
     private final ReferenceQueue<Texture> texturesRefQueue = new ReferenceQueue<>();
 
     private final Map<String, WeakValueReference<String, Mesh>> meshes = new HashMap<>();
     private final ReferenceQueue<Mesh> meshesRefQueue = new ReferenceQueue<>();
+
+    private final Map<ShaderKey, WeakValueReference<ShaderKey, Shader>> shaders = new HashMap<>();
+    private final ReferenceQueue<Shader> shadersRefQueue = new ReferenceQueue<>();
 
     private final AssetDisposer assetDisposer;
 
@@ -113,6 +118,17 @@ public final class AssetLoader implements core.graphics.AssetLoader {
                                 1, 2, 3,
                                 2, 4, 3
                         }));
+    }
+
+    @Override
+    public core.graphics.resource.Shader getShader(String vertexShaderPath, String fragmentShaderPath) {
+        cleanMap(shadersRefQueue, shaders);
+        var key = new ShaderKey(vertexShaderPath, fragmentShaderPath);
+        var shader = shaders.get(key);
+        if (shader != null && shader.get() != null) return shader.get();
+        var newShader = new Shader(assetDisposer, vertexShaderPath, fragmentShaderPath);
+        shaders.put(key, new WeakValueReference<>(key, newShader, shadersRefQueue));
+        return newShader;
     }
 
     /**

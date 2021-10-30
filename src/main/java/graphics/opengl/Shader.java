@@ -10,9 +10,10 @@ import org.lwjgl.opengl.GL46;
 import java.io.*;
 import java.lang.ref.Cleaner;
 
-public final class Shader {
+public final class Shader implements core.graphics.resource.Shader {
     private static final Cleaner CLEANER = Cleaner.create();
 
+    private String name;
     private int programId;
     private int vertexShaderId;
     private int fragmentShaderId;
@@ -41,6 +42,8 @@ public final class Shader {
         ZerrgoEngine.Logger().info(
                 "Creating shader from \"" + vertexShaderFile +
                         "\" and \"" + fragmentShaderFile + "\".");
+
+        name = vertexShaderFile + "|" + fragmentShaderFile;
 
         // 1. create two type of shader from txt file.
         vertexShaderId = loadShaderFromFile(vertexShaderFile, GL46.GL_VERTEX_SHADER);
@@ -99,13 +102,9 @@ public final class Shader {
         return shaderID;
     }
 
-    public void start() {
-        GL46.glUseProgram(programId);
-    }
+    void start() { GL46.glUseProgram(programId); }
 
-    public void stop() {
-        GL46.glUseProgram(0);
-    }
+    void stop() { GL46.glUseProgram(0); }
 
     // register uniform variable in shader code.
     public void setFloat(String name, float value) {
@@ -153,5 +152,6 @@ public final class Shader {
         GL46.glUniformMatrix4fv(loc, false, matrix4fArr);
     }
 
-    public int getProgramID() { return programId; }
+    @Override
+    public String getName() { return name; }
 }

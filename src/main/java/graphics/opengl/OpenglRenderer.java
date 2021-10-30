@@ -27,8 +27,7 @@ public final class OpenglRenderer implements Renderer {
         GL46.glBlendFunc(GL46.GL_SRC_ALPHA, GL46.GL_ONE_MINUS_SRC_ALPHA);
 
         //test code
-        shader = new Shader(
-                assetDisposer,
+        shader = (Shader) assetLoader.getShader(
                 "src\\main\\resources\\shader\\standard2d_vertex.glsl",
                 "src\\main\\resources\\shader\\standard2d_fragment.glsl");
         bindVAO();
@@ -119,17 +118,11 @@ public final class OpenglRenderer implements Renderer {
     }
 
     @Override
-    public RenderScheduler getScheduler() {
-        return openglRenderScheduler;
-    }
+    public RenderScheduler getScheduler() { return openglRenderScheduler; }
 
     @Override
-    public core.graphics.AssetLoader getAssetLoader() {
-        return assetLoader;
-    }
+    public core.graphics.AssetLoader getAssetLoader() { return assetLoader; }
 
     @Override
-    public void disposeDeadResources() {
-        assetDisposer.disposeDeadResources();
-    }
+    public void disposeDeadResources() { assetDisposer.disposeDeadResources(); }
 }

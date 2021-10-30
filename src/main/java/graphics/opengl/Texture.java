@@ -65,19 +65,6 @@ public final class Texture implements core.graphics.resource.Texture {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var texture = (Texture) o;
-        return Objects.equals(name, texture.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
     public String getName() { return name; }
 
     void setParameter(int name, int value) {

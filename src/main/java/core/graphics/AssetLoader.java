@@ -1,6 +1,7 @@
 package core.graphics;
 
 import core.graphics.resource.Mesh;
+import core.graphics.resource.Shader;
 import core.graphics.resource.Texture;
 import core.graphics.resource.VertexContainer;
 
@@ -14,4 +15,6 @@ public interface AssetLoader {
     Optional<Mesh> getMesh(String name);
 
     Mesh getPlaneMesh();
+
+    Shader getShader(String vertexShaderPath, String fragmentShaderPath);
 }

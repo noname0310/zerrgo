@@ -126,19 +126,6 @@ public final class Mesh implements core.graphics.resource.Mesh {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var mesh = (Mesh) o;
-        return Objects.equals(name, mesh.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
     public String getName() { return name; }
 
     void bind() {
