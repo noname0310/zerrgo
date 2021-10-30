@@ -5,7 +5,7 @@ import core.graphics.DisposeDelegate;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class AssetDisposer {
+public final class AssetDisposer {
     private final Queue<DisposeDelegate> disposeDelegates = new ConcurrentLinkedQueue<>();
 
     void addDisposeDelegate(DisposeDelegate disposeDelegate) { disposeDelegates.add(disposeDelegate); }

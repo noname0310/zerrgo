@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL46;
 import java.io.*;
 import java.lang.ref.Cleaner;
 
-public class Shader {
+public final class Shader {
     private static final Cleaner CLEANER = Cleaner.create();
 
     private int programId;

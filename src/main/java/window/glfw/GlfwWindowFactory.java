@@ -3,7 +3,7 @@ package window.glfw;
 import core.window.Window;
 import core.window.WindowFactory;
 
-public class GlfwWindowFactory implements WindowFactory {
+public final class GlfwWindowFactory implements WindowFactory {
     @Override
     public void globalInitialize() { GlfwWindow.globalInitialize(); }
 

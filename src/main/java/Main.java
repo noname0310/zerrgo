@@ -3,7 +3,7 @@ import graphics.opengl.OpenglRenderer;
 import window.glfw.GlfwWindowFactory;
 import world.opengltest.OpenglTestWorld;
 
-public class Main {
+public final class Main {
     public static void main(String[] args) {
         new EngineBuilder()
                 .window(new GlfwWindowFactory())

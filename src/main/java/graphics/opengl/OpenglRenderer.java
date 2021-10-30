@@ -4,11 +4,10 @@ import core.graphics.RenderScheduler;
 import core.graphics.Renderer;
 import org.lwjgl.opengl.GL46;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenglRenderer implements Renderer {
+public final class OpenglRenderer implements Renderer {
     private final OpenglRenderScheduler openglRenderScheduler;
     private final AssetLoader assetLoader;
     private final AssetDisposer assetDisposer;
@@ -30,8 +29,8 @@ public class OpenglRenderer implements Renderer {
         //test code
         shader = new Shader(
                 assetDisposer,
-                "src\\main\\resources\\shader\\vertexShader.glsl",
-                "src\\main\\resources\\shader\\fragmentShader.glsl");
+                "src\\main\\resources\\shader\\standard2d_vertex.glsl",
+                "src\\main\\resources\\shader\\standard2d_fragment.glsl");
         bindVAO();
     }
 

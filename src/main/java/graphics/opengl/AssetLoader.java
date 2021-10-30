@@ -109,7 +109,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
                                         1.0f, 1.0f
                                 }
                         ),
-                        new int[]{
+                        new int[]{ //indices
                                 1, 2, 3,
                                 2, 4, 3
                         }));

@@ -4,7 +4,7 @@ import core.graphics.RenderScheduler;
 import core.graphics.resource.Model;
 import org.joml.Matrix4f;
 
-public class OpenglRenderScheduler implements RenderScheduler {
+public final class OpenglRenderScheduler implements RenderScheduler {
     @Override
     public void addInstance(int id, Model renderTarget, Matrix4f matrix4x4) {
 

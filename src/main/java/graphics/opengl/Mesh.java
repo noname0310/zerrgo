@@ -9,7 +9,6 @@ import java.lang.ref.Cleaner;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public final class Mesh implements core.graphics.resource.Mesh {
     // sizeof float/sizeof int
