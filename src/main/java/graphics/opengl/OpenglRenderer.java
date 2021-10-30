@@ -43,6 +43,8 @@ public class OpenglRenderer implements Renderer {
     @Override
     public void render() {
         GL46.glClear(GL46.GL_COLOR_BUFFER_BIT); // clear the framebuffer
+
+        //test code
         shader.start();
 
         for (int vaoID : vaoIDs) {
@@ -59,6 +61,7 @@ public class OpenglRenderer implements Renderer {
         shader.stop();
     }
 
+    //test code
     // triangle numbers.
     private final int TRIANGLE_NUMBER = 1;
 
@@ -69,6 +72,7 @@ public class OpenglRenderer implements Renderer {
     List<Integer> vaoIDs = new ArrayList<>();
     List<Integer> vboIDs = new ArrayList<>();
 
+    //test code
     private void bindVAO() {
         // bind VAOs and put data.
         float multiplier = 1;
