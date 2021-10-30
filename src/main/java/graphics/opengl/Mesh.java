@@ -3,7 +3,7 @@ package graphics.opengl;
 import core.ZerrgoEngine;
 import core.graphics.resource.VertexContainer;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL46;
 
 import java.lang.ref.Cleaner;
 import java.nio.FloatBuffer;
@@ -41,15 +41,10 @@ public final class Mesh implements core.graphics.resource.Mesh {
     ) implements Runnable {
         @Override
         public void run() {
-            ZerrgoEngine.Logger().info("disposing mesh (vao id: " + vertexAttributesId + ")");
             assetDisposer.addDisposeDelegate(() -> {
-                IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
-                intBuffer.reset();
-                intBuffer.put(vertexAttributesId);
-                GL15.glDeleteBuffers(intBuffer);
-                intBuffer.reset();
-                intBuffer.put(indicesId);
-                GL15.glDeleteBuffers(intBuffer);
+                ZerrgoEngine.Logger().info("disposing mesh (vao id: " + vertexAttributesId + ")");
+                GL46.glDeleteBuffers(vertexAttributesId);
+                GL46.glDeleteBuffers(indicesId);
             });
         }
     }
@@ -77,7 +72,7 @@ public final class Mesh implements core.graphics.resource.Mesh {
         // Now build the buffers for the VBO/IBO
         var vertexAttributesCount = vertexContainer.positions().length;
         indicesCount = vertexContainer.positions().length * 3;
-        ZerrgoEngine.Logger().log(Level.INFO,
+        ZerrgoEngine.Logger().info(
                 "Creating buffer of size " + vertexAttributesCount +
                         " vertices at " + ATTR_FLOATS + " floats per vertex for a total of " +
                         (vertexAttributesCount * ATTR_FLOATS) + " floats.");
@@ -85,7 +80,9 @@ public final class Mesh implements core.graphics.resource.Mesh {
         var vectors = vertexContainer.positions();
         var normals = vertexContainer.normal();
         var uvs = vertexContainer.uv();
-        for (var i = 0; i < vertexAttributesCount; ++i) {
+
+        var iterationCount = vertexAttributesCount / 3;
+        for (var i = 0; i < iterationCount; ++i) {
             vertexAttributes.put(vectors[i * 3]); //vector x
             vertexAttributes.put(vectors[i * 3 + 1]); //vector y
             vertexAttributes.put(vectors[i * 3 + 2]); //vector z
@@ -117,13 +114,13 @@ public final class Mesh implements core.graphics.resource.Mesh {
         indicesBuffer.flip();
 
         // Alright!  Now give them to OpenGL!
-        vertexAttributesId = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexAttributesId);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexAttributes, GL15.GL_STATIC_DRAW);
+        vertexAttributesId = GL46.glGenBuffers();
+        GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vertexAttributesId);
+        GL46.glBufferData(GL46.GL_ARRAY_BUFFER, vertexAttributes, GL46.GL_STATIC_DRAW);
 
-        indicesId = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesId);
-        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
+        indicesId = GL46.glGenBuffers();
+        GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesId);
+        GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indices, GL46.GL_STATIC_DRAW);
 
         var cleanerRunnable = new CleanerRunnable(assetDisposer, vertexAttributesId, indicesId, indicesCount);
         CLEANER.register(this, cleanerRunnable);
@@ -133,7 +130,7 @@ public final class Mesh implements core.graphics.resource.Mesh {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Mesh mesh = (Mesh) o;
+        var mesh = (Mesh) o;
         return Objects.equals(name, mesh.name);
     }
 
@@ -142,12 +139,18 @@ public final class Mesh implements core.graphics.resource.Mesh {
         return Objects.hash(name);
     }
 
-    int getVertexAttributesId() { return vertexAttributesId; }
-
-    int getIndicesId() { return indicesId; }
-
-    int getIndicesCount() { return indicesCount; }
-
     @Override
     public String getName() { return name; }
+
+    void bind() {
+        GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vertexAttributesId);
+        GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesId);
+    }
+
+    void unbind() {
+        GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, 0);
+        GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
+    int getIndicesCount() { return indicesCount; }
 }

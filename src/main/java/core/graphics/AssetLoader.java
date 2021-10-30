@@ -12,4 +12,6 @@ public interface AssetLoader {
     Mesh addMesh(String name, VertexContainer vertexContainer, int[] indices);
 
     Optional<Mesh> getMesh(String name);
+
+    Mesh getPlaneMesh();
 }

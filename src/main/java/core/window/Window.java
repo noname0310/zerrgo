@@ -1,11 +1,6 @@
 package core.window;
 
 import core.window.event.FrameBufferSizeEventListener;
-import org.lwjgl.glfw.Callbacks;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL;
-import window.glfw.GlfwInputHandler;
 
 public interface Window {
     void vsync(boolean enable);

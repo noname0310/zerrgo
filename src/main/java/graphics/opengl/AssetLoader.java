@@ -36,6 +36,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         this.assetDisposer = assetDisposer;
     }
 
+    @Override
     public core.graphics.resource.Texture getTexture(String path) {
         cleanMap(texturesRefQueue, textures);
         var texture = textures.get(path);
@@ -65,6 +66,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         return newTexture;
     }
 
+    @Override
     public core.graphics.resource.Mesh addMesh(String name, VertexContainer vertexContainer, int[] indices) {
         cleanMap(meshesRefQueue, meshes);
         var mesh = meshes.get(name);
@@ -74,11 +76,43 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         return newMesh;
     }
 
+    @Override
     public Optional<core.graphics.resource.Mesh> getMesh(String name) {
         cleanMap(meshesRefQueue, meshes);
         var mesh = meshes.get(name);
         if (mesh != null) return Optional.ofNullable(mesh.get());
         else return Optional.empty();
+    }
+
+    @Override
+    public core.graphics.resource.Mesh getPlaneMesh() {
+        return getMesh("engine_default_plane")
+                .orElseGet(() -> addMesh(
+                        "engine_default_plane",
+                        new VertexContainer(
+                                new float[]{ //positions
+                                        -0.5f, 0.5f, 0.0f,
+                                        0.5f, 0.5f, 0.0f,
+                                        -0.5f, -0.5f, 0.0f,
+                                        0.5f, -0.5f, 0.0f
+                                },
+                                new float[]{ //normals
+                                        0.0f, 0.0f, -1.0f,
+                                        0.0f, 0.0f, -1.0f,
+                                        0.0f, 0.0f, -1.0f,
+                                        0.0f, 0.0f, -1.0f,
+                                },
+                                new float[]{ //uvs
+                                        0.0f, 0.0f,
+                                        1.0f, 0.0f,
+                                        0.0f, 1.0f,
+                                        1.0f, 1.0f
+                                }
+                        ),
+                        new int[]{
+                                1, 2, 3,
+                                2, 4, 3
+                        }));
     }
 
     /**

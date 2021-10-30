@@ -32,7 +32,7 @@ public final class Material {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Material material = (Material) o;
+        var material = (Material) o;
         return Objects.equals(name, material.name);
     }
 

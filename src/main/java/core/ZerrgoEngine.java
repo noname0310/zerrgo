@@ -5,6 +5,8 @@ import core.window.Window;
 import core.world.WorldContainer;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.logging.*;
 
 public final class ZerrgoEngine {
@@ -25,11 +27,18 @@ public final class ZerrgoEngine {
         LOGGER.setLevel(Level.INFO);
 
         var consoleHandler = new ConsoleHandler();
+        var consoleFormatter = new LogFormatter(true);
+        consoleHandler.setFormatter(consoleFormatter);
+        LOGGER.addHandler(consoleHandler);
+
         FileHandler fileHandler = null;
         try {
             fileHandler = new FileHandler("message.log", true);
         } catch (IOException e) {
-            e.printStackTrace();
+            ZerrgoEngine.Logger().warning("Could not initialize file handler!");
+            var stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            ZerrgoEngine.Logger().warning(stringWriter.toString());
         }
 
         if (fileHandler != null) {
@@ -37,10 +46,6 @@ public final class ZerrgoEngine {
             fileHandler.setFormatter(fileFormatter);
             LOGGER.addHandler(fileHandler);
         }
-
-        var consoleFormatter = new LogFormatter(true);
-        consoleHandler.setFormatter(consoleFormatter);
-        LOGGER.addHandler(consoleHandler);
     }
 
     ZerrgoEngine(EngineBuilder engineBuilder) {
