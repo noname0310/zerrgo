@@ -71,5 +71,5 @@ public final class EngineBuilder {
 
     WorldContainer getWorldContainer() { return worldContainer; }
 
-    boolean vsync() { return vsync; }
+    boolean getVsync() { return vsync; }
 }

@@ -2,6 +2,8 @@ package graphics.opengl;
 
 import org.joml.Vector4f;
 
+import java.util.Objects;
+
 public final class Material {
     private final String name;
     private final Texture texture;
@@ -24,6 +26,19 @@ public final class Material {
     void render(Mesh mesh) {
         if (texture != null) texture.bind();
         if (texture != null) texture.unbind();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Material material = (Material) o;
+        return Objects.equals(name, material.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     public String getName() { return name; }

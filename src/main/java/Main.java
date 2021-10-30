@@ -1,7 +1,7 @@
 import core.EngineBuilder;
 import graphics.opengl.OpenglRenderer;
 import window.glfw.GlfwWindowFactory;
-import world.hierarchical.HierarchicalWorld;
+import world.opengltest.OpenglTestWorld;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,7 +11,7 @@ public class Main {
                 .windowSize(1280, 720)
                 .windowName("hello world")
                 .enableVsync()
-                .world(new HierarchicalWorld())
+                .world(new OpenglTestWorld())
                 .run();
     }
 }

@@ -1,4 +1,4 @@
-package graphics.opengl;
+package core.graphics.resource;
 
 public final record VertexContainer(
         float[] positions,

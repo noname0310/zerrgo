@@ -6,9 +6,13 @@ import org.lwjgl.opengl.GL11;
 
 public class OpenglRenderer implements Renderer {
     private final OpenglRenderScheduler openglRenderScheduler;
+    private final AssetLoader assetLoader;
+    private final AssetDisposer assetDisposer;
 
     public OpenglRenderer() {
         openglRenderScheduler = new OpenglRenderScheduler();
+        assetDisposer = new AssetDisposer();
+        assetLoader = new AssetLoader(assetDisposer);
     }
 
     @Override
@@ -36,7 +40,12 @@ public class OpenglRenderer implements Renderer {
     }
 
     @Override
+    public core.graphics.AssetLoader getAssetLoader() {
+        return assetLoader;
+    }
+
+    @Override
     public void disposeDeadResources() {
-        AssetLoader.disposeDeadResources();
+        assetDisposer.disposeDeadResources();
     }
 }

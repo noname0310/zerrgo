@@ -1,4 +1,4 @@
-package core.graphics.resource;
+package core.graphics;
 
 public interface DisposeDelegate {
     void dispose();

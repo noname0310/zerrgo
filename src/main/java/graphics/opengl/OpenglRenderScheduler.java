@@ -1,12 +1,12 @@
 package graphics.opengl;
 
 import core.graphics.RenderScheduler;
-import core.graphics.RenderTarget;
+import core.graphics.resource.Model;
 import org.joml.Matrix4f;
 
 public class OpenglRenderScheduler implements RenderScheduler {
     @Override
-    public void addInstance(int id, RenderTarget renderTarget, Matrix4f matrix4x4) {
+    public void addInstance(int id, Model renderTarget, Matrix4f matrix4x4) {
 
     }
 

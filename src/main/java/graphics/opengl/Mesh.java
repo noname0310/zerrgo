@@ -1,15 +1,17 @@
 package graphics.opengl;
 
 import core.ZerrgoEngine;
+import core.graphics.resource.VertexContainer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
 
 import java.lang.ref.Cleaner;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 
-public final class Mesh {
+public final class Mesh implements core.graphics.resource.Mesh {
     // sizeof float/sizeof int
     private final static int FLOAT_SIZE = 4;
     private final static int INDICES_SIZE = 4;
@@ -26,28 +28,32 @@ public final class Mesh {
 
     private static final Cleaner CLEANER = Cleaner.create();
 
+    private final String name;
     private final int vertexAttributesId;
     private final int indicesId;
     private final int indicesCount;
 
     private record CleanerRunnable(
+            AssetDisposer assetDisposer,
             int vertexAttributesId,
             int indicesId,
             int indicesCount
     ) implements Runnable {
         @Override
         public void run() {
-            IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
-            intBuffer.reset();
-            intBuffer.put(vertexAttributesId);
-            GL15.glDeleteBuffers(intBuffer);
-            intBuffer.reset();
-            intBuffer.put(indicesId);
-            GL15.glDeleteBuffers(intBuffer);
+            assetDisposer.addDisposeDelegate(() -> {
+                IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
+                intBuffer.reset();
+                intBuffer.put(vertexAttributesId);
+                GL15.glDeleteBuffers(intBuffer);
+                intBuffer.reset();
+                intBuffer.put(indicesId);
+                GL15.glDeleteBuffers(intBuffer);
+            });
         }
     }
 
-    Mesh(VertexContainer vertexContainer, int[] indices) {
+    Mesh(AssetDisposer assetDisposer, String name, VertexContainer vertexContainer, int[] indices) {
         if (vertexContainer.positions().length <= 0) {
             throw new RuntimeException("Can not build a Mesh if we have no vertex with which to build it.");
         }
@@ -64,6 +70,8 @@ public final class Mesh {
             throw new RuntimeException("Can not build a Mesh " +
                     "which uv values is not complete (uv.length / 2 * 3 != positions.length).");
         }
+
+        this.name = name;
 
         // Now build the buffers for the VBO/IBO
         var vertexAttributesCount = vertexContainer.positions().length;
@@ -116,8 +124,21 @@ public final class Mesh {
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesId);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
 
-        var cleanerRunnable = new CleanerRunnable(vertexAttributesId, indicesId, indicesCount);
+        var cleanerRunnable = new CleanerRunnable(assetDisposer, vertexAttributesId, indicesId, indicesCount);
         CLEANER.register(this, cleanerRunnable);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mesh mesh = (Mesh) o;
+        return Objects.equals(name, mesh.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     int getVertexAttributesId() { return vertexAttributesId; }
@@ -125,4 +146,7 @@ public final class Mesh {
     int getIndicesId() { return indicesId; }
 
     int getIndicesCount() { return indicesCount; }
+
+    @Override
+    public String getName() { return name; }
 }

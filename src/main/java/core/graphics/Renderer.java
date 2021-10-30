@@ -9,5 +9,7 @@ public interface Renderer {
 
     RenderScheduler getScheduler();
 
+    AssetLoader getAssetLoader();
+
     void disposeDeadResources();
 }

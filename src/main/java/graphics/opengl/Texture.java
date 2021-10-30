@@ -4,8 +4,9 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
-public final class Texture {
+public final class Texture implements core.graphics.resource.Texture {
     private static final Cleaner CLEANER = Cleaner.create();
 
     private final String name;
@@ -13,14 +14,20 @@ public final class Texture {
     private final int width;
     private final int height;
 
-    private record CleanerRunnable(int id) implements Runnable {
+    private record CleanerRunnable(AssetDisposer assetDisposer, int id) implements Runnable {
         @Override
-        public void run() { GL11.glDeleteTextures(id); } //@todo make global dispose queue
+        public void run() { assetDisposer.addDisposeDelegate(() -> GL11.glDeleteTextures(id)); }
     }
 
     public record TextureParameter(int name, int value) { }
 
-    Texture(String name, int width, int height, ByteBuffer data, TextureParameter...parameters) {
+    Texture(AssetDisposer assetDisposer,
+            String name,
+            int width,
+            int height,
+            ByteBuffer data,
+            TextureParameter...parameters
+    ) {
         this.name = name;
         this.width = width;
         this.height = height;
@@ -43,8 +50,21 @@ public final class Texture {
         // unbind
         unbind();
 
-        var cleanerRunnable = new CleanerRunnable(id);
+        var cleanerRunnable = new CleanerRunnable(assetDisposer, id);
         CLEANER.register(this, cleanerRunnable);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Texture texture = (Texture) o;
+        return Objects.equals(name, texture.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     void setParameter(int name, int value) {
@@ -59,5 +79,6 @@ public final class Texture {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     }
 
+    @Override
     public String getName() { return name; }
 }

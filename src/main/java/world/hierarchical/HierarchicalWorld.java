@@ -1,6 +1,7 @@
 package world.hierarchical;
 
 import core.ZerrgoEngine;
+import core.graphics.AssetLoader;
 import core.graphics.RenderScheduler;
 import core.window.Window;
 import core.world.WorldContainer;
@@ -15,7 +16,7 @@ public class HierarchicalWorld implements WorldContainer {
     private List<GameObject> objects = new ArrayList<>();
 
     @Override
-    public void initialize(Window window, RenderScheduler renderScheduler) {
+    public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
         this.window = window;
     }
 

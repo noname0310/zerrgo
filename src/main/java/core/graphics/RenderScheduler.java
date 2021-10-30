@@ -1,5 +1,6 @@
 package core.graphics;
 
+import core.graphics.resource.Model;
 import org.joml.Matrix4f;
 
 /**
@@ -9,10 +10,10 @@ public interface RenderScheduler {
     /**
      * add instance to renderer to draw
      * @param id instance id for distinction
-     * @param renderTarget draw model
+     * @param model draw model
      * @param matrix4x4 transform matrix
      */
-    void addInstance(int id, RenderTarget renderTarget, Matrix4f matrix4x4);
+    void addInstance(int id, Model model, Matrix4f matrix4x4);
 
     /**
      * remove instance from renderer

@@ -8,19 +8,20 @@ import java.io.IOException;
 import java.util.logging.*;
 
 public final class ZerrgoEngine {
-    private final static Logger LOGGER = Logger.getGlobal();
+    private final static Logger LOGGER;
     private final Window window;
     private final Renderer renderer;
     private final WorldContainer world;
 
     static {
-        /* remove default handler */
+        /* remove default log handler */
         var rootLogger = Logger.getLogger("");
         Handler[] handlers = rootLogger.getHandlers();
         if (handlers[0] instanceof ConsoleHandler) {
             rootLogger.removeHandler(handlers[0]);
         }
 
+        LOGGER = Logger.getGlobal();
         LOGGER.setLevel(Level.INFO);
 
         var consoleHandler = new ConsoleHandler();
@@ -53,13 +54,13 @@ public final class ZerrgoEngine {
         );
         window.handleEvent();
         window.makeContext();
-        window.vsync(engineBuilder.vsync());
+        window.vsync(engineBuilder.getVsync());
         window.show();
 
         this.renderer = engineBuilder.getRenderer();
 
         this.world = engineBuilder.getWorldContainer();
-        world.initialize(window, renderer.getScheduler());
+        world.initialize(window, renderer.getScheduler(), renderer.getAssetLoader());
 
         renderer.initialize(window.getFrameBufferWidth(), window.getFrameBufferHeight());
         window.addOnFramebufferSizeListener(renderer::resizeFrameBuffer);
