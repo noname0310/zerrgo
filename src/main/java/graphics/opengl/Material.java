@@ -2,25 +2,23 @@ package graphics.opengl;
 
 import org.joml.Vector4f;
 
-import java.util.Objects;
-
+@SuppressWarnings("ClassCanBeRecord")
 public final class Material {
     private final String name;
     private final Texture texture;
     private final Vector4f color;
+    private final Shader shader;
 
-    private Material (
+    Material (
             String name,
             Texture texture,
-            Vector4f color
+            Vector4f color,
+            Shader shader
     ) {
         this.name = name;
         this.texture = texture;
         this.color = color;
-    }
-
-    public static Material fromTexture(Texture texture) {
-        return new Material(texture.getName(), texture, null);
+        this.shader = shader;
     }
 
     void render(Mesh mesh) {

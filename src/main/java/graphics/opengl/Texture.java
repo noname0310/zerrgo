@@ -5,7 +5,6 @@ import org.lwjgl.opengl.GL46;
 
 import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
-import java.util.Objects;
 
 public final class Texture implements core.graphics.resource.Texture {
     private static final Cleaner CLEANER = Cleaner.create();
@@ -47,8 +46,10 @@ public final class Texture implements core.graphics.resource.Texture {
 
         // bind texture
         bind();
-        setParameter(GL46.GL_TEXTURE_WRAP_S, GL46.GL_CLAMP);
-        setParameter(GL46.GL_TEXTURE_WRAP_T, GL46.GL_CLAMP);
+        setParameter(GL46.GL_TEXTURE_WRAP_S, GL46.GL_REPEAT);
+        setParameter(GL46.GL_TEXTURE_WRAP_T, GL46.GL_REPEAT);
+        //setParameter(GL46.GL_TEXTURE_MIN_FILTER, GL46.GL_LINEAR_MIPMAP_LINEAR);
+        //setParameter(GL46.GL_TEXTURE_MAG_FILTER, GL46.GL_LINEAR);
         setParameter(GL46.GL_TEXTURE_MIN_FILTER, GL46.GL_NEAREST);
         setParameter(GL46.GL_TEXTURE_MAG_FILTER, GL46.GL_NEAREST);
         for (var item : parameters) setParameter(item.name(), item.value());
@@ -56,6 +57,7 @@ public final class Texture implements core.graphics.resource.Texture {
         // put image data.
         GL46.glTexImage2D(GL46.GL_TEXTURE_2D, 0,GL46.GL_RGBA8, width,
                 height, 0, GL46.GL_RGBA, GL46.GL_UNSIGNED_BYTE, data);
+        GL46.glGenerateMipmap(GL46.GL_TEXTURE_2D);
 
         // unbind
         unbind();

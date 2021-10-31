@@ -1,12 +1,14 @@
-#version 140
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
-in vec3 vertexData;
-in vec3 colorData;
-
-out vec3 vertexColor;
+out vec3 ourColor;
+out vec2 TexCoord;
 
 void main()
 {
-    vertexColor = colorData;
-    gl_Position = vec4(vertexData.xyz, 1.0);
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+    TexCoord = aTexCoord;
 }

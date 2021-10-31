@@ -1,5 +1,6 @@
 package core.graphics;
 
+import core.graphics.resource.Camera;
 import core.graphics.resource.Model;
 import org.joml.Matrix4f;
 
@@ -11,7 +12,7 @@ public interface RenderScheduler {
      * add instance to renderer to draw
      * @param id instance id for distinction
      * @param model draw model
-     * @param matrix4x4 transform matrix
+     * @param matrix4x4 world transform matrix
      */
     void addInstance(int id, Model model, Matrix4f matrix4x4);
 
@@ -31,7 +32,7 @@ public interface RenderScheduler {
     /**
      * update instance transform
      * @param id instance id
-     * @param matrix4x4 transform matrix
+     * @param matrix4x4 world transform matrix
      */
     void updateTransform(int id, Matrix4f matrix4x4);
 
@@ -41,4 +42,9 @@ public interface RenderScheduler {
     void clearInstances();
 
     void drawPrimitive();
+
+    /**
+     * set camera for get view projection matrix mainly
+     */
+    void setCamera(Camera camera);
 }

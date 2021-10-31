@@ -43,7 +43,7 @@ public final class OpenglRenderer implements Renderer {
         GL46.glClear(GL46.GL_COLOR_BUFFER_BIT); // clear the framebuffer
 
         //test code
-        shader.start();
+        shader.use();
 
         for (int vaoID : vaoIDs) {
             GL46.glBindVertexArray(vaoID);
@@ -56,7 +56,7 @@ public final class OpenglRenderer implements Renderer {
             GL46.glDisableVertexAttribArray(1);
         }
 
-        shader.stop();
+        shader.unUse();
     }
 
     //test code

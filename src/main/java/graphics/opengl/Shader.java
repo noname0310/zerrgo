@@ -102,9 +102,9 @@ public final class Shader implements core.graphics.resource.Shader {
         return shaderID;
     }
 
-    void start() { GL46.glUseProgram(programId); }
+    void use() { GL46.glUseProgram(programId); }
 
-    void stop() { GL46.glUseProgram(0); }
+    void unUse() { GL46.glUseProgram(0); }
 
     // register uniform variable in shader code.
     public void setFloat(String name, float value) {
