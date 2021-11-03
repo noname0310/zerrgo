@@ -1,6 +1,6 @@
 package core.graphics;
 
-import core.graphics.resource.Camera;
+import core.graphics.record.Camera;
 import core.graphics.resource.Model;
 import org.joml.Matrix4f;
 

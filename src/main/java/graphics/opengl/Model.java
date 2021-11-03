@@ -1,5 +1,6 @@
 package graphics.opengl;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class Model implements core.graphics.resource.Model {
@@ -28,6 +29,24 @@ public final class Model implements core.graphics.resource.Model {
         for (int i = 0; i < meshes.length; ++i) {
             materials[i].render(meshes[i]);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Model model = (Model) o;
+        return name.equals(model.name)
+                && Arrays.equals(meshes, model.meshes)
+                && Arrays.equals(materials, model.materials);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(name);
+        result = 31 * result + Arrays.hashCode(meshes);
+        result = 31 * result + Arrays.hashCode(materials);
+        return result;
     }
 
     @Override
