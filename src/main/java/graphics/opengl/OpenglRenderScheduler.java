@@ -86,7 +86,11 @@ public final class OpenglRenderScheduler implements RenderScheduler {
         return innerMap.get(id);
     }
 
-//    Iterator<Map.Entry<Model, RenderInstanceValue>> getDrawIterator() {
-//        return instances.entrySet().iterator();
-//    }
+    interface foreachFunc {
+        void foreach(Model drawModel, RenderInstanceValue renderInstanceValue);
+    }
+
+    void foreachRenderItem(foreachFunc foreachFunc) {
+        instances.forEach((model, innerMap) ->  innerMap.values().forEach(item -> foreachFunc.foreach(model, item)));
+    }
 }
