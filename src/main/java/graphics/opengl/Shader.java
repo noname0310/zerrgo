@@ -2,10 +2,12 @@ package graphics.opengl;
 
 import core.ZerrgoEngine;
 import org.joml.*;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL46;
 
 import java.io.*;
 import java.lang.ref.Cleaner;
+import java.nio.FloatBuffer;
 
 public final class Shader implements core.graphics.resource.Shader {
     private static final Cleaner CLEANER = Cleaner.create();
@@ -139,14 +141,13 @@ public final class Shader implements core.graphics.resource.Shader {
         GL46.glUniform4f(loc, vec.x(), vec.y(), vec.z(), vec.w());
     }
 
-    /* Array to hand over the matrix */
-    private final float[] matrix4fArr = new float[16];
+    /* Buffer to hand over the matrix */
+    private final FloatBuffer matrixFloatBuffer = BufferUtils.createFloatBuffer(16);
 
     public void setMatrix4f(String name, Matrix4fc matrix) {
         int loc = GL46.glGetUniformLocation(programId, name);
-
-        matrix.get(matrix4fArr);
-        GL46.glUniformMatrix4fv(loc, false, matrix4fArr);
+        matrix.get(matrixFloatBuffer);
+        GL46.glUniformMatrix4fv(loc, false, matrixFloatBuffer);
     }
 
     @Override
