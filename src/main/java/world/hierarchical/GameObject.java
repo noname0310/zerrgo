@@ -1,23 +1,41 @@
 package world.hierarchical;
-import world.hierarchical.component.Characteristics.Updateable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import world.hierarchical.component.characteristics.Positional;
+import world.hierarchical.component.characteristics.Renderable;
+import world.hierarchical.component.characteristics.Updatable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
     private boolean isEnabled = false;
-    private List<GameObject> children = new ArrayList<GameObject>();
+    private final List<GameObject> children = new ArrayList<>();
     private GameObject parent;
-    private List<Component> components = new ArrayList<Component>();
+    private final List<Component> components = new ArrayList<>();
+    private boolean isPositional = false;
+    private Component transform;
 
-    public void Update(){
-        for(Component component:components){
-            if(component instanceof Updateable){
-                ((Updateable) component).update();
+    public void update() {
+        for (Component component : components) {
+            if (component instanceof Updatable) {
+                ((Updatable) component).update();
+            }
+            if(component instanceof Positional) {
+                if(parent.isPositional()){
+                    Vector3f parentPosition = new Vector3f(((Positional)(parent.getTransform())).getPosition());
+                    Quaternionf parentRotation = new Quaternionf(((Positional)(parent.getTransform())).getRotation());
+                    ((Positional) component).setPosition(parentPosition.add(((Positional) component).getLocalPosition()));
+                    ((Positional) component).setRotation(parentRotation.add(((Positional) component).getLocalRotation()));
+                }
+                if (component instanceof Renderable) {
+                    ((Renderable) component).render();
+                }
+                //joml 벡터
             }
         }
-        for(GameObject object:children){
-            object.Update();
+        for (GameObject object : children) {
+            object.update();
         }
     }
 
@@ -46,19 +64,35 @@ public class GameObject {
     }
 
     public void removeChild(GameObject object){
-        if(children.contains(object)){
-            children.remove(object);
-        }
+        children.remove(object);
     }
 
-    public void appendComponent(Component component){
+    public boolean appendComponent(Component component){
+        if(component instanceof Positional) {
+            if(isPositional) {
+                return false;
+            }
+            transform = component;
+            components.add(component);
+            return true;
+        }
         components.add(component);
+        return true;
     }
 
     public void removeComponent(Component component){
-        if(components.contains(component)){
-            components.remove(component);
+        components.remove(component);
+        if(component instanceof Positional) {
+            isPositional = false;
         }
+    }
+
+    public boolean isPositional(){
+        return isPositional;
+    }
+
+    public Component getTransform(){
+        return transform;
     }
 
 }

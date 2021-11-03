@@ -12,8 +12,8 @@ import world.Time;
 
 public class HierarchicalWorld implements WorldContainer {
     private Window window;
-    private Time time = new Time();
-    private List<GameObject> objects = new ArrayList<>();
+    private final Time time = Time.getInstance();
+    private final List<GameObject> objects = new ArrayList<>();
 
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
@@ -25,7 +25,7 @@ public class HierarchicalWorld implements WorldContainer {
         time.Update();
         ZerrgoEngine.Logger().log(Level.INFO, "fps : " + 1 / Time.getDeltaTime());
         for (GameObject object:objects) {
-            object.Update();
+            object.update();
         }
     }
 

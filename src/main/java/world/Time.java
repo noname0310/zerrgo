@@ -8,9 +8,14 @@ public class Time {
     private static double timeScale = 1;
     private static Time instance;
 
-    public Time(){
-        if(instance != null){
-            instance = this;
+    private Time() { }
+
+    public static Time getInstance() {
+        if(instance == null) {
+            return instance;
+        } else {
+            instance = new Time();
+            return instance;
         }
     }
 
