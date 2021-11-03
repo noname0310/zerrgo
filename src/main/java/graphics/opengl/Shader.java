@@ -1,10 +1,7 @@
 package graphics.opengl;
 
 import core.ZerrgoEngine;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 import org.lwjgl.opengl.GL46;
 
 import java.io.*;
@@ -127,25 +124,25 @@ public final class Shader implements core.graphics.resource.Shader {
         GL46.glUniform2f(loc, x, y);
     }
 
-    public void setVector2f(String name, Vector2f vec) {
+    public void setVector2f(String name, Vector2fc vec) {
         int loc = GL46.glGetUniformLocation(programId, name);
-        GL46.glUniform2f(loc, vec.x, vec.y);
+        GL46.glUniform2f(loc, vec.x(), vec.y());
     }
 
-    public void setVector3f(String name, Vector3f vec) {
+    public void setVector3f(String name, Vector3fc vec) {
         int loc = GL46.glGetUniformLocation(programId, name);
-        GL46.glUniform3f(loc, vec.x, vec.y, vec.z);
+        GL46.glUniform3f(loc, vec.x(), vec.y(), vec.z());
     }
 
-    public void setVector4f(String name, Vector4f vec) {
+    public void setVector4f(String name, Vector4fc vec) {
         int loc = GL46.glGetUniformLocation(programId, name);
-        GL46.glUniform4f(loc, vec.x, vec.y, vec.z, vec.w);
+        GL46.glUniform4f(loc, vec.x(), vec.y(), vec.z(), vec.w());
     }
 
     /* Array to hand over the matrix */
     private final float[] matrix4fArr = new float[16];
 
-    public void setMatrix4f(String name, Matrix4f matrix) {
+    public void setMatrix4f(String name, Matrix4fc matrix) {
         int loc = GL46.glGetUniformLocation(programId, name);
 
         matrix.get(matrix4fArr);

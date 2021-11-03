@@ -1,7 +1,6 @@
 package core.graphics.record;
 
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import org.joml.*;
 
 public final class OrthographicCamera extends Camera {
     private float screenRatio;
@@ -13,12 +12,11 @@ public final class OrthographicCamera extends Camera {
             float viewSize,
             float near,
             float far,
-            Vector3f backgroundColor
+            Vector3fc position,
+            Quaternionfc rotation,
+            Vector3fc backgroundColor
     ) {
-        super(near, far, backgroundColor);
-
-        this.backgroundColor = backgroundColor;
-        this.projectionMatrix = new Matrix4f();
+        super(near, far, backgroundColor, position, rotation);
         this.screenRatio = screenWidth / screenHeight;
         this.viewSize = viewSize;
     }
@@ -27,19 +25,20 @@ public final class OrthographicCamera extends Camera {
 
     public void setViewSize(float size) {
         viewSize = size;
-        updateProjectionMatrix();
+        projectionMatrixOutdated = true;
     }
 
     @Override
     protected void updateProjectionMatrix() {
         var scalar = 0.5f * viewSize;
-        projectionMatrix.ortho(
-                -scalar * screenRatio, //left
-                scalar * screenRatio, //right
-                -scalar, //bottom
-                scalar, //top
-                getNearClippingPlane(), //near
-                getFarClippingPlane() //far
-        );
+        projectionMatrix = new Matrix4f()
+                .ortho(
+                        -scalar * screenRatio, //left
+                        scalar * screenRatio, //right
+                        -scalar, //bottom
+                        scalar, //top
+                        getNearClippingPlane(), //near
+                        getFarClippingPlane() //far
+                );
     }
 }

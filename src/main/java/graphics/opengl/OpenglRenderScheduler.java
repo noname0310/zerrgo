@@ -4,6 +4,7 @@ import core.graphics.RenderScheduler;
 import core.graphics.record.Camera;
 import core.graphics.resource.Model;
 import org.joml.Matrix4f;
+import org.joml.Matrix4x3fc;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +16,7 @@ public final class OpenglRenderScheduler implements RenderScheduler {
     private final Map<Model, InstanceValue> instances = new HashMap<>();
 
     @Override
-    public void addInstance(int id, Model model, Matrix4f matrix4x4) {
+    public void addInstance(int id, Model model, Matrix4x3fc matrix4x3) {
 
     }
 
@@ -30,7 +31,7 @@ public final class OpenglRenderScheduler implements RenderScheduler {
     }
 
     @Override
-    public void updateTransform(int id, Matrix4f matrix4x4) {
+    public void updateTransform(int id, Matrix4x3fc matrix4x3) {
 
     }
 

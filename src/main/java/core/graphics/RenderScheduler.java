@@ -3,6 +3,7 @@ package core.graphics;
 import core.graphics.record.Camera;
 import core.graphics.resource.Model;
 import org.joml.Matrix4f;
+import org.joml.Matrix4x3fc;
 
 /**
  * manage render schedule, what to draw
@@ -12,9 +13,9 @@ public interface RenderScheduler {
      * add instance to renderer to draw
      * @param id instance id for distinction
      * @param model draw model
-     * @param matrix4x4 world transform matrix
+     * @param matrix4x3 world transform matrix
      */
-    void addInstance(int id, Model model, Matrix4f matrix4x4);
+    void addInstance(int id, Model model, Matrix4x3fc matrix4x3);
 
     /**
      * remove instance from renderer
@@ -32,9 +33,9 @@ public interface RenderScheduler {
     /**
      * update instance transform
      * @param id instance id
-     * @param matrix4x4 world transform matrix
+     * @param matrix4x3 world transform matrix
      */
-    void updateTransform(int id, Matrix4f matrix4x4);
+    void updateTransform(int id, Matrix4x3fc matrix4x3);
 
     /**
      * clear all instance in scheduler
