@@ -12,77 +12,87 @@ public class Transform extends Component implements Positional {
     private Vector3f localScale;
     private Quaternionf rotation;
     private Quaternionf localRotation;
+    private boolean isOutdated = true;
 
     @Override
-    public Vector3f getPosition() {
-        return new Vector3f(position);
+    public Vector3fc getPosition() {
+        return position;
     }
 
     @Override
-    public Vector3f setPosition(Vector3f v) {
+    public Vector3fc setPosition(Vector3fc v) {
         position = new Vector3f(v);
-        return new Vector3f(position);
+        isOutdated = true;
+        return position;
     }
 
     @Override
-    public Vector3f getLocalPosition() {
-        return new Vector3f(localPosition);
+    public Vector3fc getLocalPosition() {
+        return localPosition;
     }
 
     @Override
-    public Vector3f setLocalPosition(Vector3f v) {
+    public Vector3fc setLocalPosition(Vector3fc v) {
         localPosition = new Vector3f(v);
-        return new Vector3f(localPosition);
+        isOutdated = true;
+        return localPosition;
     }
 
     @Override
-    public Vector3f getScale() {
-        return new Vector3f(scale);
+    public Vector3fc getScale() {
+        return scale;
     }
 
     @Override
-    public Vector3f setScale(Vector3f v) {
+    public Vector3fc setScale(Vector3fc v) {
         scale = new Vector3f(v);
-        return new Vector3f(scale);
+        isOutdated = true;
+        return scale;
     }
 
     @Override
-    public Vector3f getLocalScale() {
-        return new Vector3f(localScale);
+    public Vector3fc getLocalScale() {
+        return localScale;
     }
 
     @Override
-    public Vector3f setLocalScale(Vector3f v) {
+    public Vector3fc setLocalScale(Vector3fc v) {
         localScale = new Vector3f(v);
-        return new Vector3f(localScale);
+        isOutdated = true;
+        return localScale;
     }
 
     @Override
-    public Quaternionf getRotation() {
-        return new Quaternionf(rotation);
+    public Quaternionfc getRotation() {
+        return rotation;
     }
 
     @Override
-    public Quaternionf setRotation(Quaternionf q) {
+    public Quaternionfc setRotation(Quaternionfc q) {
         rotation = new Quaternionf(q);
-        return new Quaternionf(rotation);
+        isOutdated = true;
+        return rotation;
     }
 
     @Override
-    public Quaternionf getLocalRotation() {
-        return new Quaternionf(localRotation);
+    public Quaternionfc getLocalRotation() {
+        return localRotation;
     }
 
     @Override
-    public Quaternionf setLocalRotation(Quaternionf q) {
+    public Quaternionfc setLocalRotation(Quaternionfc q) {
         localRotation = new Quaternionf(q);
-        return new Quaternionf(localRotation);
+        isOutdated = true;
+        return localRotation;
     }
 
-    public Matrix4x3f getMatrix() {
-        matrix.translate(position);
-        matrix.rotate(rotation);
-        matrix.scale(scale);
+    public Matrix4x3fc getMatrix() {
+        if(isOutdated) {
+            matrix = new Matrix4x3f();
+            matrix.translate(position);
+            matrix.rotate(rotation);
+            matrix.scale(scale);
+        }
         return matrix;
     }
 }

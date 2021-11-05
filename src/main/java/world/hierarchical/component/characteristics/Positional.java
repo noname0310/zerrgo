@@ -1,24 +1,26 @@
 package world.hierarchical.component.characteristics;
 
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public interface Positional {
-    Vector3f getPosition();
-    Vector3f setPosition(Vector3f v);
+    Vector3fc getPosition();
+    Vector3fc setPosition(Vector3fc v);
 
-    Vector3f getLocalPosition();
-    Vector3f setLocalPosition(Vector3f v);
+    Vector3fc getLocalPosition();
+    Vector3fc setLocalPosition(Vector3fc v);
 
-    Vector3f getScale();
-    Vector3f setScale(Vector3f v);
+    Vector3fc getScale();
+    Vector3fc setScale(Vector3fc v);
 
-    Vector3f getLocalScale();
-    Vector3f setLocalScale(Vector3f v);
+    Vector3fc getLocalScale();
+    Vector3fc setLocalScale(Vector3fc v);
 
-    Quaternionf getRotation();
-    Quaternionf setRotation(Quaternionf q);
+    Quaternionfc getRotation();
+    Quaternionfc setRotation(Quaternionfc q);
 
-    Quaternionf getLocalRotation();
-    Quaternionf setLocalRotation(Quaternionf q);
+    Quaternionfc getLocalRotation();
+    Quaternionfc setLocalRotation(Quaternionfc q);
 }
