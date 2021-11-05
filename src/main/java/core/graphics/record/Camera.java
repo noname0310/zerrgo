@@ -67,19 +67,19 @@ public abstract class Camera {
         return viewProjectionMatrix;
     }
 
+    public Vector3fc getPosition() { return position; }
+
     public void setPosition(Vector3fc position) {
         this.position = new Vector3f(position);
         viewMatrixOutdated = true;
     }
 
-    public Vector3fc getPosition() { return position; }
+    public Quaternionfc getRotation() { return rotation; }
 
     public void setRotation(Quaternionfc rotation) {
         this.rotation = new Quaternionf(rotation);
         viewMatrixOutdated = true;
     }
-
-    public Quaternionfc getRotation() { return rotation; }
 
     private void updateViewMatrix(){ viewMatrix = new Matrix4f().translate(position).rotate(rotation); }
 
