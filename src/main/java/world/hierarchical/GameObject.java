@@ -15,6 +15,7 @@ public class GameObject {
     private final List<Component> components = new ArrayList<>();
     private boolean isPositional = false;
     private Component transform;
+    private HierarchicalWorld world;
 
     public void update() {
         for (Component component : components) {
@@ -31,7 +32,6 @@ public class GameObject {
                 if (component instanceof Renderable) {
                     ((Renderable) component).render();
                 }
-                //joml 벡터
             }
         }
         for (GameObject object : children) {
@@ -56,15 +56,27 @@ public class GameObject {
     }
 
     public void setParent(GameObject parent) {
+        if(this.parent.getChildren().contains(this)){
+            this.parent.removeChild(this);
+        }
         this.parent = parent;
+        if(parent.getChildren().contains(this)){
+            parent.appendChild(this);
+        }
     }
 
     public void appendChild(GameObject object){
         children.add(object);
+        if(object.getParent() != this) {
+            object.setParent(this);
+        }
     }
 
     public void removeChild(GameObject object){
         children.remove(object);
+        if(object.getParent() == this) {
+            object.setParent(null);
+        }
     }
 
     public boolean appendComponent(Component component){
@@ -93,6 +105,14 @@ public class GameObject {
 
     public Component getTransform(){
         return transform;
+    }
+
+    public HierarchicalWorld getWorld(){
+        return world;
+    }
+
+    public void setWorld(HierarchicalWorld w){
+        world = w;
     }
 
 }

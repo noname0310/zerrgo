@@ -12,6 +12,7 @@ public class Transform extends Component implements Positional {
     private Vector3f localScale;
     private Quaternionf rotation;
     private Quaternionf localRotation;
+    private boolean isOutdated = true;
 
     @Override
     public Vector3fc getPosition() {
@@ -21,6 +22,7 @@ public class Transform extends Component implements Positional {
     @Override
     public Vector3fc setPosition(Vector3fc v) {
         position = new Vector3f(v);
+        isOutdated = true;
         return position;
     }
 
@@ -32,6 +34,7 @@ public class Transform extends Component implements Positional {
     @Override
     public Vector3fc setLocalPosition(Vector3fc v) {
         localPosition = new Vector3f(v);
+        isOutdated = true;
         return localPosition;
     }
 
@@ -43,6 +46,7 @@ public class Transform extends Component implements Positional {
     @Override
     public Vector3fc setScale(Vector3fc v) {
         scale = new Vector3f(v);
+        isOutdated = true;
         return scale;
     }
 
@@ -54,6 +58,7 @@ public class Transform extends Component implements Positional {
     @Override
     public Vector3fc setLocalScale(Vector3fc v) {
         localScale = new Vector3f(v);
+        isOutdated = true;
         return localScale;
     }
 
@@ -65,6 +70,7 @@ public class Transform extends Component implements Positional {
     @Override
     public Quaternionfc setRotation(Quaternionfc q) {
         rotation = new Quaternionf(q);
+        isOutdated = true;
         return rotation;
     }
 
@@ -76,13 +82,17 @@ public class Transform extends Component implements Positional {
     @Override
     public Quaternionfc setLocalRotation(Quaternionfc q) {
         localRotation = new Quaternionf(q);
+        isOutdated = true;
         return localRotation;
     }
 
     public Matrix4x3fc getMatrix() {
-        matrix.translate(position);
-        matrix.rotate(rotation);
-        matrix.scale(scale);
+        if(isOutdated) {
+            matrix = new Matrix4x3f();
+            matrix.translate(position);
+            matrix.rotate(rotation);
+            matrix.scale(scale);
+        }
         return matrix;
     }
 }

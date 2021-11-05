@@ -14,10 +14,22 @@ public class HierarchicalWorld implements WorldContainer {
     private Window window;
     private final Time time = Time.getInstance();
     private final List<GameObject> objects = new ArrayList<>();
+    private RenderScheduler renderScheduler;
+    private AssetLoader assetLoader;
 
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
         this.window = window;
+        this.renderScheduler = renderScheduler;
+        this.assetLoader = assetLoader;
+
+        //test
+        GameObject goa = new GameObject();
+        GameObject gob = new GameObject();
+        GameObject goc = new GameObject();
+
+        goa.setParent(gob);
+        goa.setParent(goc);
     }
 
     @Override
@@ -27,6 +39,24 @@ public class HierarchicalWorld implements WorldContainer {
         for (GameObject object:objects) {
             object.update();
         }
+    }
+
+    public RenderScheduler getRenderScheduler(){
+        return renderScheduler;
+    }
+
+    public AssetLoader getAssetLoader(){
+        return assetLoader;
+    }
+
+    public GameObject addGameObject(GameObject o){
+        objects.add(o);
+        o.setWorld(this);
+        return o;
+    }
+
+    public boolean removeGameObject(GameObject o){
+        return objects.remove(o);
     }
 
 }
