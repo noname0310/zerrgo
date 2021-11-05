@@ -4,7 +4,6 @@ import core.window.Window;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import core.window.event.FrameBufferSizeEventListener;
@@ -54,8 +53,6 @@ public final class GlfwWindow implements Window {
     public void makeContext() {
         /* Make the OpenGL context current */
         GLFW.glfwMakeContextCurrent(handle);
-        /* ensure capabilities */
-        GL.createCapabilities();
     }
 
     @Override

@@ -12,10 +12,8 @@ import java.nio.FloatBuffer;
 public final class Shader implements core.graphics.resource.Shader {
     private static final Cleaner CLEANER = Cleaner.create();
 
-    private String name;
-    private int programId;
-    private int vertexShaderId;
-    private int fragmentShaderId;
+    private final String name;
+    private final int programId;
 
     private record CleanerRunnable(
             AssetDisposer assetDisposer,
@@ -45,8 +43,8 @@ public final class Shader implements core.graphics.resource.Shader {
         name = vertexShaderFile + "|" + fragmentShaderFile;
 
         // 1. create two type of shader from txt file.
-        vertexShaderId = loadShaderFromFile(vertexShaderFile, GL46.GL_VERTEX_SHADER);
-        fragmentShaderId = loadShaderFromFile(fragmentShaderFile, GL46.GL_FRAGMENT_SHADER);
+        var vertexShaderId = loadShaderFromFile(vertexShaderFile, GL46.GL_VERTEX_SHADER);
+        var fragmentShaderId = loadShaderFromFile(fragmentShaderFile, GL46.GL_FRAGMENT_SHADER);
 
         // 2. create program and attach shader to program.
         programId = GL46.glCreateProgram();
@@ -66,7 +64,7 @@ public final class Shader implements core.graphics.resource.Shader {
     }
 
     private static int loadShaderFromFile(String fileName, int type) {
-        StringBuilder shaderSource = new StringBuilder();
+        var shaderSource = new StringBuilder();
 
         // read each line and store source in string.
         try {
@@ -107,37 +105,37 @@ public final class Shader implements core.graphics.resource.Shader {
 
     // register uniform variable in shader code.
     public void setFloat(String name, float value) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform1f(loc, value);
     }
 
     public void setInteger(String name, int value) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform1i(loc, value);
     }
 
     public void setInteger(String name, boolean value) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform1i(loc, value ? 1 : 0);
     }
 
     public void setVector2f(String name, float x, float y) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform2f(loc, x, y);
     }
 
     public void setVector2f(String name, Vector2fc vec) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform2f(loc, vec.x(), vec.y());
     }
 
     public void setVector3f(String name, Vector3fc vec) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform3f(loc, vec.x(), vec.y(), vec.z());
     }
 
     public void setVector4f(String name, Vector4fc vec) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         GL46.glUniform4f(loc, vec.x(), vec.y(), vec.z(), vec.w());
     }
 
@@ -145,7 +143,7 @@ public final class Shader implements core.graphics.resource.Shader {
     private final FloatBuffer matrixFloatBuffer = BufferUtils.createFloatBuffer(16);
 
     public void setMatrix4f(String name, Matrix4fc matrix) {
-        int loc = GL46.glGetUniformLocation(programId, name);
+        var loc = GL46.glGetUniformLocation(programId, name);
         matrix.get(matrixFloatBuffer);
         GL46.glUniformMatrix4fv(loc, false, matrixFloatBuffer);
     }

@@ -8,6 +8,22 @@ public final class OrthographicCamera extends Camera {
 
     public OrthographicCamera(
             float screenWidth,
+            float screenHeight
+    ) {
+        this(
+                screenWidth,
+                screenHeight,
+                500,
+                0.0f,
+                1000f,
+                new Vector3f(0, 0, -20),
+                new Quaternionf(),
+                new Vector3f(0, 0, 0)
+        );
+    }
+
+    public OrthographicCamera(
+            float screenWidth,
             float screenHeight,
             float viewSize,
             float near,
@@ -35,8 +51,8 @@ public final class OrthographicCamera extends Camera {
                 .ortho(
                         -scalar * screenRatio, //left
                         scalar * screenRatio, //right
-                        -scalar, //bottom
-                        scalar, //top
+                        scalar, //bottom
+                        -scalar, //top
                         getNearClippingPlane(), //near
                         getFarClippingPlane() //far
                 );

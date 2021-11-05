@@ -48,14 +48,13 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         if (texture != null && texture.get() != null) return texture.get();
 
         // create buffers to store data.
-        ByteBuffer image;
         IntBuffer width = MemoryUtil.memAllocInt(1);
         IntBuffer height = MemoryUtil.memAllocInt(1);
         IntBuffer comp = MemoryUtil.memAllocInt(1);
 
         // load data from path.
         // width, height info is stored in length 1 buffer.
-        image = STBImage.stbi_load(path, width, height, comp, 4);
+        var image = STBImage.stbi_load(path, width, height, comp, 4);
 
         // failed to create image -> error
         if (image == null) {
@@ -64,6 +63,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         }
 
         var newTexture = new Texture(assetDisposer, path, width.get(0), height.get(0), image);
+        STBImage.stbi_image_free(image);
         textures.put(
                 path,
                 new WeakValueReference<>(path, newTexture, texturesRefQueue)
@@ -97,26 +97,26 @@ public final class AssetLoader implements core.graphics.AssetLoader {
                         new VertexContainer(
                                 new float[]{ //positions
                                         -0.5f, 0.5f, 0.0f,
-                                        0.5f, 0.5f, 0.0f,
                                         -0.5f, -0.5f, 0.0f,
-                                        0.5f, -0.5f, 0.0f
+                                        0.5f, -0.5f, 0.0f,
+                                        0.5f, 0.5f, 0.0f
                                 },
                                 new float[]{ //normals
                                         0.0f, 0.0f, -1.0f,
                                         0.0f, 0.0f, -1.0f,
                                         0.0f, 0.0f, -1.0f,
-                                        0.0f, 0.0f, -1.0f,
+                                        0.0f, 0.0f, -1.0f
                                 },
                                 new float[]{ //uvs
-                                        0.0f, 0.0f,
-                                        1.0f, 0.0f,
                                         0.0f, 1.0f,
+                                        1.0f, 0.0f,
+                                        1.0f, 0.0f,
                                         1.0f, 1.0f
                                 }
                         ),
                         new int[]{ //indices
-                                1, 2, 3,
-                                2, 4, 3
+                                0, 1, 2,
+                                0, 2, 3
                         }));
     }
 

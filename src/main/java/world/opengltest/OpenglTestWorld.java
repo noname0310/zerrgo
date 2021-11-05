@@ -9,8 +9,8 @@ public class OpenglTestWorld implements WorldContainer {
 
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
-        var texture = assetLoader.getTexture("C:\\noname\\thumb.png");
-        var mesh = assetLoader.getPlaneMesh();
+//        var texture = assetLoader.getTexture("C:\\noname\\thumb.png");
+//        var mesh = assetLoader.getPlaneMesh();
     }
 
     @Override

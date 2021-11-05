@@ -63,7 +63,7 @@ public abstract class Camera {
             projectionMatrixOutdated = false;
             isMatrixUpdated = true;
         }
-        if (isMatrixUpdated) viewProjectionMatrix = viewMatrix.mul(projectionMatrix);
+        if (isMatrixUpdated) viewProjectionMatrix = projectionMatrix.mul(viewMatrix);
         return viewProjectionMatrix;
     }
 
