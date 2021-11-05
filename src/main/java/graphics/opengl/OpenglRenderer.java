@@ -1,11 +1,14 @@
 package graphics.opengl;
 
+import core.ZerrgoEngine;
 import core.graphics.RenderScheduler;
 import core.graphics.Renderer;
+import core.graphics.record.Camera;
+import core.graphics.record.OrthographicCamera;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL46;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class OpenglRenderer implements Renderer {
     private final OpenglRenderScheduler openglRenderScheduler;
@@ -20,7 +23,11 @@ public final class OpenglRenderer implements Renderer {
 
     @Override
     public void initialize(int frameBufferWidth, int frameBufferHeight) {
+        /* ensure capabilities */
+        GL.createCapabilities();
+
         /* OpenGL configures. */
+        ZerrgoEngine.Logger().info("openGL version: " + GL46.glGetString(GL46.GL_VERSION));
         GL46.glViewport(0, 0, frameBufferWidth, frameBufferHeight);
         GL46.glEnable(GL46.GL_CULL_FACE);
         GL46.glEnable(GL46.GL_BLEND);
@@ -30,12 +37,54 @@ public final class OpenglRenderer implements Renderer {
         shader = (Shader) assetLoader.getShader(
                 "src\\main\\resources\\shader\\standard2d_vertex.glsl",
                 "src\\main\\resources\\shader\\standard2d_fragment.glsl");
-        bindVAO();
+        mesh = (Mesh) assetLoader.getPlaneMesh();
+        texture = (Texture) assetLoader.getTexture("src\\main\\resources\\20211104_102157-realesrgan.jpg");
+        camera = new OrthographicCamera(frameBufferWidth, frameBufferHeight);
+        //bindVAO();
     }
 
     @Override
     public void resizeFrameBuffer(int frameBufferWidth, int frameBufferHeight) {
         GL46.glViewport(0, 0, frameBufferWidth, frameBufferHeight);
+    }
+
+    Shader shader;
+    Mesh mesh;
+    Texture texture;
+    Camera camera;
+    float[] quadData = {
+            // Pos      // Tex
+            0.0f, 1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f,
+
+            0.0f, 1.0f, 0.0f, 1.0f,
+            1.0f, 1.0f, 1.0f, 1.0f,
+            1.0f, 0.0f, 1.0f, 0.0f
+    };
+
+    int quadVAO;
+    int quadVBO;
+
+    private void bindVAO() {
+        quadVAO = GL46.glGenVertexArrays();
+        GL46.glBindVertexArray(quadVAO);
+
+        quadVBO = GL46.glGenBuffers();
+        GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, quadVBO);
+
+        GL46.glBufferData(GL46.GL_ARRAY_BUFFER, quadData, GL46.GL_STATIC_DRAW);
+
+        // first two floats -> position
+        GL46.glVertexAttribPointer(0, 2, GL46.GL_FLOAT, false, 4 * 4, 0);
+        GL46.glEnableVertexAttribArray(0);
+
+        // first two floats -> texture
+        GL46.glVertexAttribPointer(1, 2, GL46.GL_FLOAT, false, 4 * 4, 2 * 4);
+        GL46.glEnableVertexAttribArray(1);
+
+        GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, 0);
+        GL46.glBindVertexArray(0);
     }
 
     @Override
@@ -44,77 +93,22 @@ public final class OpenglRenderer implements Renderer {
 
         //test code
         shader.use();
-
-        for (int vaoID : vaoIDs) {
-            GL46.glBindVertexArray(vaoID);
-            GL46.glEnableVertexAttribArray(0);
-            GL46.glEnableVertexAttribArray(1);
-
-            GL46.glDrawArrays(GL46.GL_TRIANGLES, 0, 3);
-
-            GL46.glDisableVertexAttribArray(0);
-            GL46.glDisableVertexAttribArray(1);
-        }
-
+        Matrix4f model = new Matrix4f()
+                .identity()
+                .scale(200)
+                .rotate((float) org.lwjgl.glfw.GLFW.glfwGetTime(), new Vector3f(0,0,1));
+        //shader.setMatrix4f("projection", camera.getViewProjectionMatrix());
+        shader.setMatrix4f("model", model);
+        shader.setMatrix4f("viewProj", camera.getViewProjectionMatrix());
+        shader.setVector3f("spriteColor", new Vector3f(1.0f, 1.0f, 1.0f));
+        mesh.bind();
+        //GL46.glBindVertexArray(quadVAO);
+        texture.bind();
+        //GL46.glDrawArrays(GL46.GL_TRIANGLES, 0, 6);
+        //GL46.glBindVertexArray(0);
+        GL46.glDrawElements(GL46.GL_TRIANGLES, mesh.getIndicesCount(), GL46.GL_UNSIGNED_INT,0);
+        mesh.unbind();
         shader.unUse();
-    }
-
-    //test code
-    // triangle numbers.
-    private final int TRIANGLE_NUMBER = 1;
-
-    float[] vertices = { 0, 0.5f, 0, -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0 };
-    Shader shader;
-
-    // vao, vbo ids manager list.
-    List<Integer> vaoIDs = new ArrayList<>();
-    List<Integer> vboIDs = new ArrayList<>();
-
-    //test code
-    private void bindVAO() {
-        // bind VAOs and put data.
-        float multiplier = 1;
-        for (int i = 0; i < TRIANGLE_NUMBER; i++) {
-            // generate vao
-            int ithVAO = GL46.glGenVertexArrays();
-            vaoIDs.add(ithVAO);
-
-            // bind vao
-            GL46.glBindVertexArray(ithVAO);
-
-            // 1. bind 0 to position vbo
-            int ithVertexVBO = GL46.glGenBuffers();
-            vboIDs.add(ithVertexVBO);
-            GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, ithVertexVBO);
-
-            float[] ithVertices = new float[9];
-            for (int j = 0; j < 9; j++) {
-                ithVertices[j] = vertices[j] * multiplier;
-            }
-            multiplier *= -0.7f;
-
-            GL46.glBufferData(GL46.GL_ARRAY_BUFFER, ithVertices, GL46.GL_STATIC_DRAW);
-            GL46.glVertexAttribPointer(0, 3, GL46.GL_FLOAT, false, 0, 0);
-            GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, 0);
-
-            // 2. bind 1 to color vbo
-            int ithColorVBO = GL46.glGenBuffers();
-            vboIDs.add(ithColorVBO);
-            GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, ithColorVBO);
-
-            float[] ithColors = new float[9];
-            for (int j = 0; j < 9; j++) {
-                ithColors[j] = (float) Math.random();
-            }
-
-            GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, ithColorVBO);
-            GL46.glBufferData(GL46.GL_ARRAY_BUFFER, ithColors, GL46.GL_STATIC_DRAW);
-            GL46.glVertexAttribPointer(1, 3, GL46.GL_FLOAT, false, 0, 0);
-            GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, 0);
-
-            // unbind vao
-            GL46.glBindVertexArray(0);
-        }
     }
 
     @Override
