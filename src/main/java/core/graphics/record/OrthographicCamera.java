@@ -13,10 +13,10 @@ public final class OrthographicCamera extends Camera {
         this(
                 screenWidth,
                 screenHeight,
-                500,
+                2,
                 0.0f,
                 1000f,
-                new Vector3f(0, 0, -20),
+                new Vector3f(0, 0, 10),
                 new Quaternionf(),
                 new Vector3f(0, 0, 0)
         );
@@ -45,13 +45,19 @@ public final class OrthographicCamera extends Camera {
     }
 
     @Override
+    public void setScreenRatio(int width, int height) {
+        this.screenRatio = (float)width / (float)height;
+        projectionMatrixOutdated = true;
+    }
+
+    @Override
     protected void updateProjectionMatrix() {
         var scalar = 0.5f * viewSize;
         projectionMatrix.setOrtho(
                         -scalar * screenRatio, //left
                         scalar * screenRatio, //right
-                        scalar, //bottom
-                        -scalar, //top
+                        -scalar, //bottom
+                        scalar, //top
                         getNearClippingPlane(), //near
                         getFarClippingPlane() //far
                 );

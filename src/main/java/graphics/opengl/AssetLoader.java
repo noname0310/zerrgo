@@ -53,6 +53,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
 
         // load data from path.
         // width, height info is stored in length 1 buffer.
+        STBImage.stbi_set_flip_vertically_on_load(true);
         var image = STBImage.stbi_load(path, width, height, comp, 4);
 
         // failed to create image -> error
@@ -108,7 +109,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
                                 },
                                 new float[]{ //uvs
                                         0.0f, 1.0f,
-                                        1.0f, 0.0f,
+                                        0.0f, 0.0f,
                                         1.0f, 0.0f,
                                         1.0f, 1.0f
                                 }

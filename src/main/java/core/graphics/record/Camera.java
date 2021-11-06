@@ -81,7 +81,14 @@ public abstract class Camera {
         viewMatrixOutdated = true;
     }
 
-    private void updateViewMatrix(){ viewMatrix.identity().translate(position).rotate(rotation); }
+    private void updateViewMatrix(){
+        viewMatrix.identity()
+                .translate(position)
+                .rotate(rotation)
+                .invert();
+    }
+
+    public abstract void setScreenRatio(int width, int height);
 
     protected abstract void updateProjectionMatrix();
 }
