@@ -45,13 +45,11 @@ public class OpenglTestWorld implements WorldContainer {
 
         renderScheduler.addInstance(1, model, takahiroTransformMatrix);
         renderScheduler.addInstance(2, model2, pikaTransformMatrix);
-
-
     }
 
     @Override
     public void update() {
-        a += 0.01f;
+        a += 0.05f;
 
         takahiroRotation.rotateZ((float) Math.toRadians(1f));
         takahiroPosition.set(Math.cos(a), Math.sin(a), 0f);
@@ -60,7 +58,6 @@ public class OpenglTestWorld implements WorldContainer {
                         .translate(takahiroPosition)
                         .rotate(takahiroRotation)
         );
-
 
         pikaPosition.set(Math.sin(a), Math.cos(a), 0f);
         renderScheduler.updateTransform(2,
