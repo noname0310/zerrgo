@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class RenderInstanceValue {
-    private Matrix4f worldTransformMatrix;
+    private final Matrix4f worldTransformMatrix;
     private boolean shouldDraw;
 
     RenderInstanceValue (Matrix4fc worldTransformMatrix, boolean shouldDraw) {
@@ -22,7 +22,7 @@ final class RenderInstanceValue {
     public Matrix4fc getWorldTransformMatrix() { return worldTransformMatrix; }
 
     public void setWorldTransformMatrix(Matrix4fc worldTransformMatrix) {
-        this.worldTransformMatrix = new Matrix4f(worldTransformMatrix);
+        this.worldTransformMatrix.set(worldTransformMatrix);
     }
 
     public boolean isShouldDraw() { return shouldDraw; }

@@ -47,11 +47,7 @@ public final class OpenglRenderer implements Renderer {
 
         openglRenderScheduler.foreachRenderItem((drawModel, renderInstanceValue) -> {
             if (!renderInstanceValue.isShouldDraw()) return;
-            if (!(drawModel instanceof Model model)) {
-                ZerrgoEngine.Logger().warning("Model("
-                        + drawModel.getName() + ") is not opengl compatible it can not be drawn!");
-                return;
-            }
+            var model = (Model) drawModel;
             var meshes = model.getMeshes();
             var materials = model.getMaterials();
 

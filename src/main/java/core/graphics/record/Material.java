@@ -7,9 +7,9 @@ import org.joml.Vector4fc;
 
 public class Material {
     private final String name;
-    private final Texture texture;
+    private Texture texture;
     private final Vector4f color;
-    private final Shader shader;
+    private Shader shader;
 
     public Material(String name, Texture texture, Vector4fc color, Shader shader) {
         this.name = name;
@@ -22,7 +22,13 @@ public class Material {
 
     public Texture getTexture() { return texture; }
 
+    public void setTexture(Texture texture) { this.texture = texture; }
+
     public Vector4fc getColor() { return color; }
 
+    public void setColor(Vector4fc color) { this.color.set(color); }
+
     public Shader getShader() { return shader; }
+
+    public void setShader(Shader shader) { this.shader = shader; }
 }
