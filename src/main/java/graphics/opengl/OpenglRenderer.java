@@ -46,6 +46,7 @@ public final class OpenglRenderer implements Renderer {
         GL46.glClear(GL46.GL_COLOR_BUFFER_BIT); // clear the framebuffer
 
         openglRenderScheduler.foreachRenderItem((drawModel, renderInstanceValue) -> {
+            if (!renderInstanceValue.isShouldDraw()) return;
             if (!(drawModel instanceof Model model)) {
                 ZerrgoEngine.Logger().warning("Model("
                         + drawModel.getName() + ") is not opengl compatible it can not be drawn!");
