@@ -18,7 +18,7 @@ public final class OrthographicCamera extends Camera {
                 1000f,
                 new Vector3f(0, 0, 10),
                 new Quaternionf(),
-                new Vector3f(0, 0, 0)
+                new Vector4f(0, 0, 0, 1.0f)
         );
     }
 
@@ -30,7 +30,7 @@ public final class OrthographicCamera extends Camera {
             float far,
             Vector3fc position,
             Quaternionfc rotation,
-            Vector3fc backgroundColor
+            Vector4fc backgroundColor
     ) {
         super(near, far, backgroundColor, position, rotation);
         this.screenRatio = screenWidth / screenHeight;

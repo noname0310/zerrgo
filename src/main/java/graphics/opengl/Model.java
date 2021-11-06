@@ -1,5 +1,7 @@
 package graphics.opengl;
 
+import core.graphics.record.Material;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -14,7 +16,7 @@ public final class Model implements core.graphics.resource.Model {
      * @param meshes model meshes
      * @param materials One-to-one correspondence with meshes, materials length must be equal to meshes length
      */
-    public Model(String name, Mesh[] meshes, Material[] materials) {
+    Model(String name, Mesh[] meshes, Material[] materials) {
         this.name = name;
         this.meshes = meshes;
         this.materials = materials;
@@ -25,10 +27,10 @@ public final class Model implements core.graphics.resource.Model {
         }
     }
 
-    void render() {
-        for (int i = 0; i < meshes.length; ++i) {
-            materials[i].render(meshes[i]);
-        }
+    Model(String name, Mesh mesh, Material material) {
+        this.name = name;
+        this.meshes = new Mesh[] { mesh };
+        this.materials = new Material[] { material };
     }
 
     @Override
@@ -51,4 +53,8 @@ public final class Model implements core.graphics.resource.Model {
 
     @Override
     public String getName() { return name; }
+
+    Mesh[] getMeshes() { return meshes; }
+
+    Material[] getMaterials() { return materials; }
 }

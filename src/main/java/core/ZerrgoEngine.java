@@ -61,12 +61,13 @@ public final class ZerrgoEngine {
         window.show();
 
         this.renderer = engineBuilder.getRenderer();
+        renderer.initialize(window.getFrameBufferWidth(), window.getFrameBufferHeight());
+
+        window.addOnFramebufferSizeListener(renderer::resizeFrameBuffer);
 
         this.world = engineBuilder.getWorldContainer();
         world.initialize(window, renderer.getScheduler(), renderer.getAssetLoader());
 
-        renderer.initialize(window.getFrameBufferWidth(), window.getFrameBufferHeight());
-        window.addOnFramebufferSizeListener(renderer::resizeFrameBuffer);
         loop();
 
         window.unHandleEvent();

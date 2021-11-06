@@ -1,9 +1,11 @@
 package core.graphics;
 
+import core.graphics.record.Material;
 import core.graphics.resource.Mesh;
+import core.graphics.resource.Model;
 import core.graphics.resource.Shader;
 import core.graphics.resource.Texture;
-import core.graphics.resource.VertexContainer;
+import core.graphics.record.VertexContainer;
 
 import java.util.Optional;
 
@@ -17,4 +19,12 @@ public interface AssetLoader {
     Mesh getPlaneMesh();
 
     Shader getShader(String vertexShaderPath, String fragmentShaderPath);
+
+    Model addModel(String name, Mesh[] meshes, Material[] materials);
+
+    Model addModel(String name, Mesh mesh, Material material);
+
+    Optional<Model> getModel(String name);
+
+    Model getPlaneModelFromTexture(Texture texture);
 }

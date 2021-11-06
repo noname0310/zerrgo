@@ -3,14 +3,14 @@ package core.graphics.record;
 import org.joml.*;
 
 public abstract class Camera {
-    private Vector3f position;
-    private Quaternionf rotation;
+    private final Vector3f position;
+    private final Quaternionf rotation;
     private float near;
     private float far;
-    private Vector3f backgroundColor;
+    private final Vector4f backgroundColor;
     private boolean viewMatrixOutdated;
-    private Matrix4f viewProjectionMatrix;
-    private Matrix4f viewMatrix;
+    private final Matrix4f viewProjectionMatrix;
+    private final Matrix4f viewMatrix;
     protected Matrix4f projectionMatrix;
     protected boolean projectionMatrixOutdated;
 
@@ -22,12 +22,12 @@ public abstract class Camera {
      * @param position camera position
      * @param rotation camera rotation
      */
-    public Camera(float near, float far, Vector3fc backgroundColor, Vector3fc position, Quaternionfc rotation) {
+    public Camera(float near, float far, Vector4fc backgroundColor, Vector3fc position, Quaternionfc rotation) {
         this.position = new Vector3f(position);
         this.rotation = new Quaternionf(rotation);
         this.near = near;
         this.far = far;
-        this.backgroundColor = new Vector3f(backgroundColor);
+        this.backgroundColor = new Vector4f(backgroundColor);
         this.viewMatrixOutdated = true;
         this.viewProjectionMatrix = new Matrix4f();
         this.viewMatrix = new Matrix4f();
@@ -35,9 +35,9 @@ public abstract class Camera {
         this.projectionMatrixOutdated = true;
     }
 
-    public Vector3fc getBackgroundColor() { return backgroundColor; }
+    public Vector4fc getBackgroundColor() { return backgroundColor; }
 
-    public void setBackgroundColor(Vector3fc color) { backgroundColor.set(color); }
+    public void setBackgroundColor(Vector4fc color) { backgroundColor.set(color); }
 
     public void setClippingPlanes(float near, float far) {
         this.near = near;

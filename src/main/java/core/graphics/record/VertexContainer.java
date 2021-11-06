@@ -1,4 +1,4 @@
-package core.graphics.resource;
+package core.graphics.record;
 
 public final record VertexContainer(
         float[] positions,

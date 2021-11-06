@@ -48,8 +48,6 @@ public final class Texture implements core.graphics.resource.Texture {
         bind();
         setParameter(GL46.GL_TEXTURE_WRAP_S, GL46.GL_REPEAT);
         setParameter(GL46.GL_TEXTURE_WRAP_T, GL46.GL_REPEAT);
-        //setParameter(GL46.GL_TEXTURE_MIN_FILTER, GL46.GL_LINEAR_MIPMAP_LINEAR);
-        //setParameter(GL46.GL_TEXTURE_MAG_FILTER, GL46.GL_LINEAR);
         setParameter(GL46.GL_TEXTURE_MIN_FILTER, GL46.GL_NEAREST);
         setParameter(GL46.GL_TEXTURE_MAG_FILTER, GL46.GL_NEAREST);
         for (var item : parameters) setParameter(item.name(), item.value());

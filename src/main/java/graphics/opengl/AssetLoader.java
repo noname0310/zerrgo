@@ -1,6 +1,8 @@
 package graphics.opengl;
 
-import core.graphics.resource.VertexContainer;
+import core.graphics.record.Material;
+import core.graphics.record.VertexContainer;
+import org.joml.Vector4f;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
@@ -34,11 +36,12 @@ public final class AssetLoader implements core.graphics.AssetLoader {
     private final Map<ShaderKey, WeakValueReference<ShaderKey, Shader>> shaders = new HashMap<>();
     private final ReferenceQueue<Shader> shadersRefQueue = new ReferenceQueue<>();
 
+    private final Map<String, WeakValueReference<String, Model>> models = new HashMap<>();
+    private final ReferenceQueue<Model> modelsRefQueue = new ReferenceQueue<>();
+
     private final AssetDisposer assetDisposer;
 
-    AssetLoader(AssetDisposer assetDisposer) {
-        this.assetDisposer = assetDisposer;
-    }
+    AssetLoader(AssetDisposer assetDisposer) { this.assetDisposer = assetDisposer; }
 
     @Override
     public core.graphics.resource.Texture getTexture(String path) {
@@ -129,6 +132,60 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         var newShader = new Shader(assetDisposer, vertexShaderPath, fragmentShaderPath);
         shaders.put(key, new WeakValueReference<>(key, newShader, shadersRefQueue));
         return newShader;
+    }
+
+    @Override
+    public core.graphics.resource.Model addModel(
+            String name,
+            core.graphics.resource.Mesh[] meshes,
+            Material[] materials
+    ) {
+        cleanMap(modelsRefQueue, models);
+        var model = models.get(name);
+        if (model != null && model.get() != null) return model.get();
+        var newModel = new Model(name, (Mesh[]) meshes, materials);
+        models.put(name, new WeakValueReference<>(name, newModel, modelsRefQueue));
+        return newModel;
+    }
+
+    @Override
+    public core.graphics.resource.Model addModel(
+            String name,
+            core.graphics.resource.Mesh mesh,
+            Material material
+    ) {
+        cleanMap(modelsRefQueue, models);
+        var model = models.get(name);
+        if (model != null && model.get() != null) return model.get();
+        var newModel = new Model(name, (Mesh) mesh, material);
+        models.put(name, new WeakValueReference<>(name, newModel, modelsRefQueue));
+        return newModel;
+    }
+
+    @Override
+    public Optional<core.graphics.resource.Model> getModel(String name) {
+        cleanMap(modelsRefQueue, models);
+        var model = models.get(name);
+        if (model != null) return Optional.ofNullable(model.get());
+        return Optional.empty();
+    }
+
+    @Override
+    public core.graphics.resource.Model getPlaneModelFromTexture(core.graphics.resource.Texture texture) {
+        return getModel("engine_default_plane_texture(" + texture.getName() + ")")
+                .orElseGet(() -> addModel(
+                        "engine_default_plane_texture(" + texture.getName() + ")",
+                        getPlaneMesh(),
+                        new Material(
+                                texture.getName() + "_mat",
+                                texture,
+                                new Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
+                                getShader(
+                                        "src\\main\\resources\\shader\\standardTexture2d_vertex.glsl",
+                                        "src\\main\\resources\\shader\\standardTexture2d_fragment.glsl"
+                                )
+                        ))
+                );
     }
 
     /**

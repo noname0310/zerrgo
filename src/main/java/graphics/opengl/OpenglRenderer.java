@@ -5,8 +5,6 @@ import core.graphics.RenderScheduler;
 import core.graphics.Renderer;
 import core.graphics.record.Camera;
 import core.graphics.record.OrthographicCamera;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL46;
@@ -15,9 +13,10 @@ public final class OpenglRenderer implements Renderer {
     private final OpenglRenderScheduler openglRenderScheduler;
     private final AssetLoader assetLoader;
     private final AssetDisposer assetDisposer;
+    private Camera renderCamera;
 
     public OpenglRenderer() {
-        openglRenderScheduler = new OpenglRenderScheduler();
+        openglRenderScheduler = new OpenglRenderScheduler(this);
         assetDisposer = new AssetDisposer();
         assetLoader = new AssetLoader(assetDisposer);
     }
@@ -33,49 +32,51 @@ public final class OpenglRenderer implements Renderer {
         GL46.glEnable(GL46.GL_BLEND);
         GL46.glBlendFunc(GL46.GL_SRC_ALPHA, GL46.GL_ONE_MINUS_SRC_ALPHA);
 
-        //test code
-        shader = (Shader) assetLoader.getShader(
-                "src\\main\\resources\\shader\\standard2d_vertex.glsl",
-                "src\\main\\resources\\shader\\standard2d_fragment.glsl");
-        mesh = (Mesh) assetLoader.getPlaneMesh();
-        texture = (Texture) assetLoader.getTexture("src\\main\\resources\\20211104_102157-realesrgan.jpg");
-        camera = new OrthographicCamera(frameBufferWidth, frameBufferHeight);
+        renderCamera = new OrthographicCamera(frameBufferWidth, frameBufferHeight);
     }
 
     @Override
     public void resizeFrameBuffer(int frameBufferWidth, int frameBufferHeight) {
         GL46.glViewport(0, 0, frameBufferWidth, frameBufferHeight);
-
-        //test code
-        camera.setScreenRatio(frameBufferWidth, frameBufferHeight);
+        renderCamera.setScreenRatio(frameBufferWidth, frameBufferHeight);
     }
-
-    Shader shader;
-    Mesh mesh;
-    Texture texture;
-    Camera camera;
 
     @Override
     public void render() {
         GL46.glClear(GL46.GL_COLOR_BUFFER_BIT); // clear the framebuffer
 
-        //test code
-        shader.use();
+        openglRenderScheduler.foreachRenderItem((drawModel, renderInstanceValue) -> {
+            if (!(drawModel instanceof Model model)) {
+                ZerrgoEngine.Logger().warning("Model("
+                        + drawModel.getName() + ") is not opengl compatible it can not be drawn!");
+                return;
+            }
+            var meshes = model.getMeshes();
+            var materials = model.getMaterials();
 
-        Matrix4f model = new Matrix4f()
-                .identity()
-                .translate(0, 0, 0)
-                .rotate((float) org.lwjgl.glfw.GLFW.glfwGetTime(), new Vector3f(0,0,1));
+            for (int i = 0; i < meshes.length; ++i) {
+                var mesh = meshes[i];
+                var material = materials[i];
+                var materialColor = material.getColor();
+                var shader = (Shader) material.getShader();
+                var texture = (Texture) material.getTexture();
 
-        shader.setMatrix4f("viewProj", camera.getViewProjectionMatrix());
-        shader.setMatrix4f("model", model);
-        shader.setVector3f("spriteColor", new Vector3f(1.0f, 0.5f, 1.0f));
-
-        mesh.bind();
-        texture.bind();
-        GL46.glDrawElements(GL46.GL_TRIANGLES, 6, GL46.GL_UNSIGNED_INT,0);
-        mesh.unbind();
-        shader.unUse();
+                shader.use();
+                shader.setMatrix4f("viewProj", renderCamera.getViewProjectionMatrix());
+                shader.setMatrix4f("model", renderInstanceValue.getWorldTransformMatrix());
+                if (materialColor != null) {
+                    shader.setVector3f(
+                            "spriteColor",
+                            new Vector3f(materialColor.x(), materialColor.y(), materialColor.z()));
+                }
+                mesh.bind();
+                if (texture != null) texture.bind();
+                GL46.glDrawElements(GL46.GL_TRIANGLES, mesh.getIndicesCount(), GL46.GL_UNSIGNED_INT,0);
+                if (texture != null) texture.unbind();
+                mesh.unbind();
+                shader.unUse();
+            }
+        });
     }
 
     @Override
@@ -86,4 +87,10 @@ public final class OpenglRenderer implements Renderer {
 
     @Override
     public void disposeDeadResources() { assetDisposer.disposeDeadResources(); }
+
+    void setCamera(Camera camera) {
+        renderCamera = camera;
+        var color = camera.getBackgroundColor();
+        GL46.glClearColor(color.x(), color.y(), color.z(), color.w());
+    }
 }

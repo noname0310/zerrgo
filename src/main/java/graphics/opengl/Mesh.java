@@ -1,7 +1,7 @@
 package graphics.opengl;
 
 import core.ZerrgoEngine;
-import core.graphics.resource.VertexContainer;
+import core.graphics.record.VertexContainer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL46;
 
