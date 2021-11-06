@@ -14,7 +14,7 @@ public class OpenglTestWorld implements WorldContainer {
 
     private final Vector3f takahiroPosition = new Vector3f();
     private final Quaternionf takahiroRotation = new Quaternionf();
-    private final Matrix4f transformMatrix = new Matrix4f();
+    private final Matrix4f takahiroTransformMatrix = new Matrix4f();
 
     private final Vector3f pikaPosition = new Vector3f();
     private final Quaternionf pikaRotation = new Quaternionf();
@@ -43,7 +43,7 @@ public class OpenglTestWorld implements WorldContainer {
         var model2 = assetLoader.getPlaneModelFromTexture(
                 assetLoader.getTexture("src\\main\\resources\\하이라이트없음_배경흰색.png"));
 
-        renderScheduler.addInstance(1, model, transformMatrix);
+        renderScheduler.addInstance(1, model, takahiroTransformMatrix);
         renderScheduler.addInstance(2, model2, pikaTransformMatrix);
 
 
@@ -51,19 +51,18 @@ public class OpenglTestWorld implements WorldContainer {
 
     @Override
     public void update() {
-        takahiroRotation.rotateZ((float) Math.toRadians(1f));
         a += 0.01f;
-        takahiroPosition.set(Math.cos(a), Math.sin(a), 0f);
 
+        takahiroRotation.rotateZ((float) Math.toRadians(1f));
+        takahiroPosition.set(Math.cos(a), Math.sin(a), 0f);
         renderScheduler.updateTransform(1,
-                transformMatrix.identity()
+                takahiroTransformMatrix.identity()
                         .translate(takahiroPosition)
                         .rotate(takahiroRotation)
         );
 
 
         pikaPosition.set(Math.sin(a), Math.cos(a), 0f);
-
         renderScheduler.updateTransform(2,
                 pikaTransformMatrix.identity()
                         .translate(pikaPosition)
