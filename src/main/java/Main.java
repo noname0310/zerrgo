@@ -12,7 +12,7 @@ public final class Main {
                 .windowSize(1280, 720)
                 .windowName("hello world")
                 .enableVsync()
-                .world(new HierarchicalWorld())
+                .world(new OpenglTestWorld())
                 .run();
     }
 }

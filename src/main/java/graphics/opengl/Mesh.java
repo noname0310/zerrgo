@@ -104,6 +104,8 @@ public final class Mesh implements core.graphics.resource.Mesh {
             }
         }
         vertexAttributes.flip();
+        var a = new float[vertexAttributesCount * ATTR_FLOATS];
+        vertexAttributes.get(a);
 
         var indicesBuffer = BufferUtils.createIntBuffer(indicesCount);
         indicesBuffer.put(indices);
@@ -116,8 +118,9 @@ public final class Mesh implements core.graphics.resource.Mesh {
         //bind vertex buffer
         var vertexBufferObjectId = GL46.glGenBuffers();
         GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vertexBufferObjectId);
-        GL46.glBufferData(GL46.GL_ARRAY_BUFFER, vertexAttributes, GL46.GL_STATIC_DRAW);
+        GL46.glBufferData(GL46.GL_ARRAY_BUFFER, a, GL46.GL_STATIC_DRAW);
 
+        GL46.glEnableVertexAttribArray(0);
         GL46.glVertexAttribPointer(
                 0,
                 ATTR_VECTOR_FLOATS_PER,
@@ -125,8 +128,8 @@ public final class Mesh implements core.graphics.resource.Mesh {
                 false,
                 ATTR_BYTES,
                 ATTR_VECTOR_OFFSET_BYTES);
-        GL46.glEnableVertexAttribArray(0);
 
+        GL46.glEnableVertexAttribArray(1);
         GL46.glVertexAttribPointer(
                 1,
                 ATTR_NORMAL_FLOATS_PER,
@@ -134,8 +137,8 @@ public final class Mesh implements core.graphics.resource.Mesh {
                 false,
                 ATTR_BYTES,
                 ATTR_NORMAL_OFFSET_BYTES);
-        GL46.glEnableVertexAttribArray(1);
 
+        GL46.glEnableVertexAttribArray(2);
         GL46.glVertexAttribPointer(
                 2,
                 ATTR_UV_FLOATS_PER,
@@ -143,12 +146,11 @@ public final class Mesh implements core.graphics.resource.Mesh {
                 false,
                 ATTR_BYTES,
                 ATTR_UV_OFFSET_BYTES);
-        GL46.glEnableVertexAttribArray(2);
 
         //bind indices buffer
         var indicesBufferId = GL46.glGenBuffers();
         GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-        GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
+        GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indices, GL46.GL_STATIC_DRAW);
 
         GL46.glBindVertexArray(0); //unbind vao
 

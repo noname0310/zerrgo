@@ -4,9 +4,7 @@ import core.graphics.Renderer;
 import core.window.Window;
 import core.world.WorldContainer;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.logging.*;
 
 public final class ZerrgoEngine {

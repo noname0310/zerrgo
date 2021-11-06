@@ -29,15 +29,15 @@ public abstract class Camera {
         this.far = far;
         this.backgroundColor = new Vector3f(backgroundColor);
         this.viewMatrixOutdated = true;
-        this.viewProjectionMatrix = null;
-        this.viewMatrix = null;
-        this.projectionMatrix = null;
+        this.viewProjectionMatrix = new Matrix4f();
+        this.viewMatrix = new Matrix4f();
+        this.projectionMatrix = new Matrix4f();
         this.projectionMatrixOutdated = true;
     }
 
     public Vector3fc getBackgroundColor() { return backgroundColor; }
 
-    public void setBackgroundColor(Vector3fc color) { backgroundColor = new Vector3f(color); }
+    public void setBackgroundColor(Vector3fc color) { backgroundColor.set(color); }
 
     public void setClippingPlanes(float near, float far) {
         this.near = near;
@@ -63,25 +63,25 @@ public abstract class Camera {
             projectionMatrixOutdated = false;
             isMatrixUpdated = true;
         }
-        if (isMatrixUpdated) viewProjectionMatrix = projectionMatrix.mul(viewMatrix);
+        if (isMatrixUpdated) projectionMatrix.mul(viewMatrix, viewProjectionMatrix);
         return viewProjectionMatrix;
     }
 
     public Vector3fc getPosition() { return position; }
 
     public void setPosition(Vector3fc position) {
-        this.position = new Vector3f(position);
+        this.position.set(position);
         viewMatrixOutdated = true;
     }
 
     public Quaternionfc getRotation() { return rotation; }
 
     public void setRotation(Quaternionfc rotation) {
-        this.rotation = new Quaternionf(rotation);
+        this.rotation.set(rotation);
         viewMatrixOutdated = true;
     }
 
-    private void updateViewMatrix(){ viewMatrix = new Matrix4f().translate(position).rotate(rotation); }
+    private void updateViewMatrix(){ viewMatrix.identity().translate(position).rotate(rotation); }
 
     protected abstract void updateProjectionMatrix();
 }

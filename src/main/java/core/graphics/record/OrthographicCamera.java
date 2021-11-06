@@ -47,8 +47,7 @@ public final class OrthographicCamera extends Camera {
     @Override
     protected void updateProjectionMatrix() {
         var scalar = 0.5f * viewSize;
-        projectionMatrix = new Matrix4f()
-                .ortho(
+        projectionMatrix.setOrtho(
                         -scalar * screenRatio, //left
                         scalar * screenRatio, //right
                         scalar, //bottom

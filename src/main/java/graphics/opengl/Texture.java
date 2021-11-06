@@ -69,6 +69,12 @@ public final class Texture implements core.graphics.resource.Texture {
     @Override
     public String getName() { return name; }
 
+    @Override
+    public int getWidth() { return width; }
+
+    @Override
+    public int getHeight() { return height; }
+
     void setParameter(int name, int value) {
         GL46.glTexParameteri(GL46.GL_TEXTURE_2D, name, value);
     }

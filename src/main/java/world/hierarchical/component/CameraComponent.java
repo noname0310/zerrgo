@@ -1,6 +1,5 @@
 package world.hierarchical.component;
 
-import core.LogFormatter;
 import core.ZerrgoEngine;
 import org.joml.Matrix4x3f;
 import org.joml.Quaternionf;
