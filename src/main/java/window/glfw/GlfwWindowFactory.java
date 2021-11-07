@@ -8,7 +8,7 @@ public final class GlfwWindowFactory implements WindowFactory {
     public void globalInitialize() { GlfwWindow.globalInitialize(); }
 
     @Override
-    public void globalFinalize() { GlfwWindow.globalFinalize(); }
+    public void globalTerminate() { GlfwWindow.globalFinalize(); }
 
     /**
      * create glfw window

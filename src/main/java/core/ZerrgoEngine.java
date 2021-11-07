@@ -70,12 +70,14 @@ public final class ZerrgoEngine {
 
         loop();
 
+        renderer.terminate();
+
         window.unHandleEvent();
 
         /*Destroy the window */
         window.destroy();
 
-        engineBuilder.getWindowFactory().globalFinalize();
+        engineBuilder.getWindowFactory().globalTerminate();
     }
 
     private void loop() {

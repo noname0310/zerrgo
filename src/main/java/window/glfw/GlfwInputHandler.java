@@ -1,7 +1,7 @@
 package window.glfw;
 
-import core.window.event.*;
 import org.lwjgl.glfw.GLFW;
+import core.window.event.*;
 import core.window.InputHandler;
 
 import java.util.ArrayList;

@@ -6,9 +6,9 @@ import core.graphics.record.Camera;
 import core.graphics.resource.Model;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Vector3fc;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 final class RenderInstanceValue {
     private final Matrix4f worldTransformMatrix;
@@ -30,9 +30,22 @@ final class RenderInstanceValue {
     public void setShouldDraw(boolean shouldDraw) { this.shouldDraw = shouldDraw; }
 }
 
+final record RenderLineInstanceValue(
+        float x1,
+        float y1,
+        float z1,
+        float x2,
+        float y2,
+        float z2,
+        float r,
+        float g,
+        float b)
+{ }
+
 public final class OpenglRenderScheduler implements RenderScheduler {
     private final Map<Model, Map<Integer, RenderInstanceValue>> instances = new HashMap<>();
     private final Map<Integer, Model> idModelMap = new HashMap<>();
+    private final List<RenderLineInstanceValue> primitiveQueue = new ArrayList<>();
 
     private final OpenglRenderer openglRenderer;
 
@@ -100,8 +113,24 @@ public final class OpenglRenderScheduler implements RenderScheduler {
     }
 
     @Override
-    public void drawPrimitive() {
+    public void drawPrimitiveLine(
+            float x1,
+            float y1,
+            float z1,
+            float x2,
+            float y2,
+            float z2,
+            float r,
+            float g,
+            float b
+    ) {
+        primitiveQueue.add(new RenderLineInstanceValue(x1, y1, z1, x2, y2, z2, r, g, b));
+    }
 
+    @Override
+    public void drawPrimitiveLine(Vector3fc a, Vector3fc b, Vector3fc color) {
+        primitiveQueue.add(
+                new RenderLineInstanceValue(a.x(), a.y(), a.z(), b.x(), b.y(), b.z(), color.x(), color.y(), color.z()));
     }
 
     @Override
@@ -115,11 +144,29 @@ public final class OpenglRenderScheduler implements RenderScheduler {
         return innerMap.get(id);
     }
 
-    interface foreachFunc {
-        void foreach(Model drawModel, RenderInstanceValue renderInstanceValue);
+    interface ForeachFunc {
+        void func(Model drawModel, RenderInstanceValue renderInstanceValue);
     }
 
-    void foreachRenderItem(foreachFunc foreachFunc) {
-        instances.forEach((model, innerMap) ->  innerMap.values().forEach(item -> foreachFunc.foreach(model, item)));
+    void foreachRenderItem(ForeachFunc foreachFunc) {
+        instances.forEach((model, innerMap) ->  innerMap.values().forEach(item -> foreachFunc.func(model, item)));
     }
+
+    interface DequeItemFunc {
+        void func(int index, float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b);
+    }
+
+    void dequePrimitives(DequeItemFunc dequeItemFunc) {
+        for (int i = 0; i < primitiveQueue.size(); ++i) {
+            var item = primitiveQueue.get(i);
+            dequeItemFunc.func(
+                    i,
+                    item.x1(), item.y1(), item.z1(),
+                    item.x2(), item.y2(), item.z2(),
+                    item.r(), item.g(), item.b());
+        }
+        primitiveQueue.clear();
+    }
+
+    int getPrimitivesCount() { return primitiveQueue.size(); }
 }

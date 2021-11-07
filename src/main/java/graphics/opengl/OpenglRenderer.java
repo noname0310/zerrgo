@@ -6,6 +6,7 @@ import core.graphics.Renderer;
 import core.graphics.record.Camera;
 import core.graphics.record.OrthographicCamera;
 import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL46;
 
@@ -14,6 +15,12 @@ public final class OpenglRenderer implements Renderer {
     private final AssetLoader assetLoader;
     private final AssetDisposer assetDisposer;
     private Camera renderCamera;
+
+    private int primitiveVertexArrayObjectId;
+    private int primitiveVertexBufferObjectId;
+    private Shader primitiveLineShader;
+
+    private static final int PRIMITIVE_BUFFER_SIZE = 16;
 
     public OpenglRenderer() {
         openglRenderScheduler = new OpenglRenderScheduler(this);
@@ -30,9 +37,37 @@ public final class OpenglRenderer implements Renderer {
         GL46.glViewport(0, 0, frameBufferWidth, frameBufferHeight);
         GL46.glEnable(GL46.GL_CULL_FACE);
         GL46.glEnable(GL46.GL_BLEND);
+        GL46.glEnable(GL46.GL_DEPTH_TEST);
         GL46.glBlendFunc(GL46.GL_SRC_ALPHA, GL46.GL_ONE_MINUS_SRC_ALPHA);
 
         renderCamera = new OrthographicCamera(frameBufferWidth, frameBufferHeight);
+
+        /* initialize primitive VAO */
+        primitiveVertexArrayObjectId = GL46.glGenVertexArrays();
+        GL46.glBindVertexArray(primitiveVertexArrayObjectId);
+
+        //bind vertex buffer
+        primitiveVertexBufferObjectId = GL46.glGenBuffers();
+        GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, primitiveVertexBufferObjectId);
+        GL46.glBufferData(GL46.GL_ARRAY_BUFFER, new float[12 * PRIMITIVE_BUFFER_SIZE], GL46.GL_STATIC_DRAW);
+
+        GL46.glVertexAttribPointer(0, 3, GL46.GL_FLOAT, false, 6 * 4, 0);
+        GL46.glEnableVertexAttribArray(0);
+
+        GL46.glVertexAttribPointer(1, 3, GL46.GL_FLOAT, false, 6 * 4, 3 * 4);
+        GL46.glEnableVertexAttribArray(1);
+
+        GL46.glBindVertexArray(0);
+
+        primitiveLineShader = (Shader) assetLoader.getShader(
+                "src\\main\\resources\\shader\\standardLine_vertex.glsl",
+                "src\\main\\resources\\shader\\standardLine_fragment.glsl");
+    }
+
+    @Override
+    public void terminate() {
+        GL46.glDeleteVertexArrays(primitiveVertexArrayObjectId);
+        GL46.glDeleteBuffers(primitiveVertexBufferObjectId);
     }
 
     @Override
@@ -43,7 +78,7 @@ public final class OpenglRenderer implements Renderer {
 
     @Override
     public void render() {
-        GL46.glClear(GL46.GL_COLOR_BUFFER_BIT); // clear the framebuffer
+        GL46.glClear(GL46.GL_COLOR_BUFFER_BIT | GL46.GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
         openglRenderScheduler.foreachRenderItem((drawModel, renderInstanceValue) -> {
             if (!renderInstanceValue.isShouldDraw()) return;
@@ -74,6 +109,43 @@ public final class OpenglRenderer implements Renderer {
                 shader.unUse();
             }
         });
+
+        /* draw primitive */
+        var primitiveCount = openglRenderScheduler.getPrimitivesCount();
+        if (primitiveCount != 0) {
+            primitiveLineShader.use();
+            primitiveLineShader.setMatrix4f("viewProj", renderCamera.getViewProjectionMatrix());
+            GL46.glBindVertexArray(primitiveVertexArrayObjectId);
+            var floatBuffer = BufferUtils.createFloatBuffer(PRIMITIVE_BUFFER_SIZE * 12);
+            openglRenderScheduler.dequePrimitives((index, x1, y1, z1, x2, y2, z2, r, g, b) -> {
+                floatBuffer.put(x1);
+                floatBuffer.put(y1);
+                floatBuffer.put(z1);
+                floatBuffer.put(r);
+                floatBuffer.put(g);
+                floatBuffer.put(b);
+                floatBuffer.put(x2);
+                floatBuffer.put(y2);
+                floatBuffer.put(z2);
+                floatBuffer.put(r);
+                floatBuffer.put(g);
+                floatBuffer.put(b);
+
+                if ((index + 1) % PRIMITIVE_BUFFER_SIZE == 0) {
+                    floatBuffer.flip();
+                    GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, primitiveVertexBufferObjectId);
+                    GL46.glBufferSubData(GL46.GL_ARRAY_BUFFER, 0, floatBuffer);
+                    GL46.glDrawArrays(GL46.GL_LINES, 0, primitiveCount * 2);
+                    floatBuffer.rewind();
+                }
+            });
+            floatBuffer.flip();
+            GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, primitiveVertexBufferObjectId);
+            GL46.glBufferSubData(GL46.GL_ARRAY_BUFFER, 0, floatBuffer);
+            GL46.glDrawArrays(GL46.GL_LINES, 0, primitiveCount * 2);
+            GL46.glBindVertexArray(0);
+            primitiveLineShader.unUse();
+        }
     }
 
     @Override

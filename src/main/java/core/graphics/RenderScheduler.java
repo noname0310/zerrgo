@@ -3,6 +3,8 @@ package core.graphics;
 import core.graphics.record.Camera;
 import core.graphics.resource.Model;
 import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 /**
  * manage render schedule, what to draw
@@ -41,7 +43,24 @@ public interface RenderScheduler {
      */
     void clearInstances();
 
-    void drawPrimitive();
+    /**
+     * draw primitive line in frame
+     */
+    void drawPrimitiveLine(
+            float x1,
+            float y1,
+            float z1,
+            float x2,
+            float y2,
+            float z2,
+            float r,
+            float g,
+            float b);
+
+    /**
+     * draw primitive line in frame
+     */
+    void drawPrimitiveLine(Vector3fc a, Vector3fc b, Vector3fc color);
 
     /**
      * set camera for get view projection matrix mainly

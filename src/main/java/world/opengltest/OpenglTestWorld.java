@@ -31,6 +31,13 @@ public class OpenglTestWorld implements WorldContainer {
     private boolean sPressed = false;
     private boolean dPressed = false;
 
+    private static final int gridCount = 10;
+    private final Vector3fc[] gridX1 = new Vector3fc[gridCount + 1];
+    private final Vector3fc[] gridX2 = new Vector3fc[gridCount + 1];
+    private final Vector3fc[] gridY1 = new Vector3fc[gridCount + 1];
+    private final Vector3fc[] gridY2 = new Vector3fc[gridCount + 1];
+    private final Vector3fc gridColor = new Vector3f(1.0f, 1.0f, 1.0f);
+
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
         this.renderScheduler = renderScheduler;
@@ -75,6 +82,13 @@ public class OpenglTestWorld implements WorldContainer {
                 if (action == KeyAction.RELEASE) dPressed = false;
             }
         });
+
+        for (int i = 0; i < gridCount + 1; ++i) {
+            gridX1[i] = new Vector3f(-(gridCount / 2.0f * 0.5f), (i - (gridCount / 2.0f)) * 0.5f, 0.0f);
+            gridX2[i] = new Vector3f(gridCount / 2.0f * 0.5f, (i - (gridCount / 2.0f)) * 0.5f, 0.0f);
+            gridY1[i] = new Vector3f((i - (gridCount / 2.0f)) * 0.5f, -(gridCount / 2.0f * 0.5f), 0.0f);
+            gridY2[i] = new Vector3f((i - (gridCount / 2.0f)) * 0.5f, gridCount / 2.0f * 0.5f, 0.0f);
+        }
     }
 
     @Override
@@ -111,6 +125,11 @@ public class OpenglTestWorld implements WorldContainer {
         if (dPressed) {
             cameraPosition.x += 0.05;
             camera.setPosition(cameraPosition);
+        }
+
+        for (int i = 0; i < gridCount + 1; ++i) {
+            renderScheduler.drawPrimitiveLine(gridX1[i], gridX2[i], gridColor);
+            renderScheduler.drawPrimitiveLine(gridY1[i], gridY2[i], gridColor);
         }
     }
 }
