@@ -14,9 +14,9 @@ final class RenderInstanceValue {
     private final Matrix4f worldTransformMatrix;
     private boolean shouldDraw;
 
-    RenderInstanceValue (Matrix4fc worldTransformMatrix, boolean shouldDraw) {
+    RenderInstanceValue(Matrix4fc worldTransformMatrix) {
         this.worldTransformMatrix = new Matrix4f(worldTransformMatrix);
-        this.shouldDraw = shouldDraw;
+        this.shouldDraw = true;
     }
 
     public Matrix4fc getWorldTransformMatrix() { return worldTransformMatrix; }
@@ -42,13 +42,32 @@ public final class OpenglRenderScheduler implements RenderScheduler {
 
     @Override
     public void addInstance(int id, Model model, Matrix4fc matrix4x4) {
-        if (!(model instanceof graphics.opengl.Model)) {
+        if (!(model instanceof graphics.opengl.Model openglModel)) {
             ZerrgoEngine.Logger().warning("Model("
                     + model.getName() + ") is not openGL compatible! OpenglRenderScheduler.addInstance() failed");
             return;
         }
+        for (var material : openglModel.getMaterials()) {
+            if (!(material.getShader() instanceof Shader)) {
+                ZerrgoEngine.Logger().warning("Shader("+ material.getShader().getName() +") of Model("
+                        + model.getName() + ") is not openGL compatible! OpenglRenderScheduler.addInstance() failed");
+                return;
+            }
+            if (!(material.getTexture() instanceof Texture)) {
+                ZerrgoEngine.Logger().warning("Texture("+ material.getTexture().getName() +") of Model("
+                        + model.getName() + ") is not openGL compatible! OpenglRenderScheduler.addInstance() failed");
+                return;
+            }
+        }
+        for (var mesh : openglModel.getMeshes()) {
+            if (!(mesh instanceof Mesh)) {
+                ZerrgoEngine.Logger().warning("Mesh("+ mesh.getName() +") of Model("
+                        + model.getName() + ") is not openGL compatible! OpenglRenderScheduler.addInstance() failed");
+                return;
+            }
+        }
         instances.computeIfAbsent(model, k -> new HashMap<>())
-                .put(id, new RenderInstanceValue(matrix4x4, true));
+                .put(id, new RenderInstanceValue(matrix4x4));
         idModelMap.put(id, model);
     }
 

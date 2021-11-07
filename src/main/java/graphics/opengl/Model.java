@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public final class Model implements core.graphics.resource.Model {
     private final String name;
-    private final Mesh[] meshes;
+    private final core.graphics.resource.Mesh[] meshes;
     private final Material[] materials;
 
     /**
@@ -16,7 +16,7 @@ public final class Model implements core.graphics.resource.Model {
      * @param meshes model meshes
      * @param materials One-to-one correspondence with meshes, materials length must be equal to meshes length
      */
-    Model(String name, Mesh[] meshes, Material[] materials) {
+    Model(String name, core.graphics.resource.Mesh[] meshes, Material[] materials) {
         this.name = name;
         this.meshes = meshes;
         this.materials = materials;
@@ -54,7 +54,7 @@ public final class Model implements core.graphics.resource.Model {
     @Override
     public String getName() { return name; }
 
-    Mesh[] getMeshes() { return meshes; }
+    core.graphics.resource.Mesh[] getMeshes() { return meshes; }
 
     Material[] getMaterials() { return materials; }
 }

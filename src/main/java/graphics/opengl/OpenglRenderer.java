@@ -48,7 +48,7 @@ public final class OpenglRenderer implements Renderer {
         openglRenderScheduler.foreachRenderItem((drawModel, renderInstanceValue) -> {
             if (!renderInstanceValue.isShouldDraw()) return;
             var model = (Model) drawModel;
-            var meshes = model.getMeshes();
+            var meshes = (Mesh[])model.getMeshes();
             var materials = model.getMaterials();
 
             for (int i = 0; i < meshes.length; ++i) {

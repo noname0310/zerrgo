@@ -11,7 +11,7 @@ public abstract class Camera {
     private boolean viewMatrixOutdated;
     private final Matrix4f viewProjectionMatrix;
     private final Matrix4f viewMatrix;
-    protected Matrix4f projectionMatrix;
+    protected final Matrix4f projectionMatrix;
     protected boolean projectionMatrixOutdated;
 
     /**

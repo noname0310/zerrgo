@@ -143,7 +143,7 @@ public final class AssetLoader implements core.graphics.AssetLoader {
         cleanMap(modelsRefQueue, models);
         var model = models.get(name);
         if (model != null && model.get() != null) return model.get();
-        var newModel = new Model(name, (Mesh[]) meshes, materials);
+        var newModel = new Model(name, meshes, materials);
         models.put(name, new WeakValueReference<>(name, newModel, modelsRefQueue));
         return newModel;
     }
