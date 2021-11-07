@@ -2,8 +2,11 @@ package world.opengltest;
 
 import core.graphics.AssetLoader;
 import core.graphics.RenderScheduler;
+import core.graphics.record.Camera;
 import core.graphics.record.OrthographicCamera;
 import core.window.Window;
+import core.window.event.KeyAction;
+import core.window.event.KeyCode;
 import core.world.WorldContainer;
 import org.joml.*;
 
@@ -21,30 +24,57 @@ public class OpenglTestWorld implements WorldContainer {
     private final Matrix4f pikaTransformMatrix = new Matrix4f();
     private float a = 0;
 
+    private Camera camera;
+    private final Vector3f cameraPosition = new Vector3f(0, 0, 10);
+    private boolean wPressed = false;
+    private boolean aPressed = false;
+    private boolean sPressed = false;
+    private boolean dPressed = false;
+
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
         this.renderScheduler = renderScheduler;
 
-        renderScheduler.setCamera(
-                new OrthographicCamera(
+        camera = new OrthographicCamera(
                         window.getFrameBufferWidth(),
                         window.getFrameBufferHeight(),
                         3,
                         0.0f,
                         100.0f,
-                        new Vector3f(0, 0, 10),
+                        cameraPosition,
                         new Quaternionf(),
                         new Vector4f(0.5f, 0.5f, 0.5f, 1.0f)
-                )
-        );
+                );
+        renderScheduler.setCamera(camera);
 
         var model = assetLoader.getPlaneModelFromTexture(
                 assetLoader.getTexture("src\\main\\resources\\20211104_102157-realesrgan.jpg"));
         var model2 = assetLoader.getPlaneModelFromTexture(
                 assetLoader.getTexture("src\\main\\resources\\하이라이트없음_배경흰색.png"));
 
+        var texture3 = assetLoader.getTexture("src\\main\\resources\\profile-realesrgan-realesrgan.png");
+        var textureRatio = (float)texture3.getHeight() / texture3.getWidth();
+        var model3 = assetLoader.getPlaneModelFromTexture(texture3);
+
         renderScheduler.addInstance(1, model, takahiroTransformMatrix);
         renderScheduler.addInstance(2, model2, pikaTransformMatrix);
+        renderScheduler.addInstance(3, model3, new Matrix4f().scale(1.0f, textureRatio,1.0f));
+
+        window.getInputHandler().addOnKeyListener((keyCode, action, modifier) -> {
+            if (keyCode == KeyCode.W) {
+                if (action == KeyAction.PRESS) wPressed = true;
+                if (action == KeyAction.RELEASE) wPressed = false;
+            } else if (keyCode == KeyCode.S) {
+                if (action == KeyAction.PRESS) sPressed = true;
+                if (action == KeyAction.RELEASE) sPressed = false;
+            } else if (keyCode == KeyCode.A) {
+                if (action == KeyAction.PRESS) aPressed = true;
+                if (action == KeyAction.RELEASE) aPressed = false;
+            } else if (keyCode == KeyCode.D) {
+                if (action == KeyAction.PRESS) dPressed = true;
+                if (action == KeyAction.RELEASE) dPressed = false;
+            }
+        });
     }
 
     @Override
@@ -65,5 +95,22 @@ public class OpenglTestWorld implements WorldContainer {
                         .translate(pikaPosition)
                         .rotate(pikaRotation)
         );
+
+        if (wPressed) {
+            cameraPosition.y += 0.05;
+            camera.setPosition(cameraPosition);
+        }
+        if (sPressed) {
+            cameraPosition.y -= 0.05;
+            camera.setPosition(cameraPosition);
+        }
+        if (aPressed) {
+            cameraPosition.x -= 0.05;
+            camera.setPosition(cameraPosition);
+        }
+        if (dPressed) {
+            cameraPosition.x += 0.05;
+            camera.setPosition(cameraPosition);
+        }
     }
 }
