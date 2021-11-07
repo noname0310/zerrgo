@@ -71,7 +71,29 @@ public final class GlfwInputHandler implements InputHandler {
     }
 
     private void onKey(long window, int key, int scancode, int action, int mods) {
-        var keyCode = switch (key) {
+        var keyCode = GlfwKey2Keycode(key);
+        var keyAction = GlfwAction2KeyAction(action);
+        var modifier = GlfwMods2KeyModifier(mods);
+        for (final var listener : keyEventListeners) listener.onKey(keyCode, keyAction, modifier);
+    }
+
+    private void onMouseMove(long window, double x, double y) {
+        for (final var listener : mouseMoveEventListeners) listener.onMouseMove(x, y);
+    }
+
+    private void onMouseButton(long window, int button, int action, int mods) {
+        var mouseCode = GlfwMouse2MouseCode(button);
+        var keyAction = GlfwAction2KeyAction(action);
+        var modifier = GlfwMods2KeyModifier(mods);
+        for (final var listener : mouseButtonEventListeners) listener.onMouseButton(mouseCode, keyAction, modifier);
+    }
+
+    private void onScroll(long window, double x, double y) {
+        for (final var listener : mouseScrollEventListeners) listener.onScroll(x, y);
+    }
+
+    private int GlfwKey2Keycode(int GlfwKey) {
+        return switch (GlfwKey) {
             case GLFW.GLFW_KEY_SPACE -> KeyCode.SPACE;
             case GLFW.GLFW_KEY_APOSTROPHE -> KeyCode.APOSTROPHE;
             case GLFW.GLFW_KEY_COMMA -> KeyCode.COMMA;
@@ -107,7 +129,7 @@ public final class GlfwInputHandler implements InputHandler {
             case GLFW.GLFW_KEY_O -> KeyCode.O;
             case GLFW.GLFW_KEY_P -> KeyCode.P;
             case GLFW.GLFW_KEY_Q -> KeyCode.Q;
-            case GLFW.GLFW_KEY_R -> KeyCode.R;   
+            case GLFW.GLFW_KEY_R -> KeyCode.R;
             case GLFW.GLFW_KEY_S -> KeyCode.S;
             case GLFW.GLFW_KEY_T -> KeyCode.T;
             case GLFW.GLFW_KEY_U -> KeyCode.U;
@@ -194,31 +216,39 @@ public final class GlfwInputHandler implements InputHandler {
             case GLFW.GLFW_KEY_MENU -> KeyCode.MENU;
             default -> KeyCode.UNKNOWN;
         };
-        var keyAction = switch (action) {
+    }
+
+    private int GlfwAction2KeyAction(int GlfwAction) {
+        return switch (GlfwAction) {
             case GLFW.GLFW_PRESS -> KeyAction.PRESS;
             case GLFW.GLFW_REPEAT -> KeyAction.REPEAT;
             case GLFW.GLFW_RELEASE -> KeyAction.RELEASE;
             default -> KeyAction.UNKNOWN;
         };
+    }
+
+    private int GlfwMods2KeyModifier(int GlfwMods) {
         var modifier = 0;
-        if ((mods & GLFW.GLFW_MOD_SHIFT) != 0) modifier |= KeyModifier.SHIFT;
-        if ((mods & GLFW.GLFW_MOD_CONTROL) != 0) modifier |= KeyModifier.CONTROL;
-        if ((mods & GLFW.GLFW_MOD_ALT) != 0) modifier |= KeyModifier.ALT;
-        if ((mods & GLFW.GLFW_MOD_SUPER) != 0) modifier |= KeyModifier.SUPER;
-        if ((mods & GLFW.GLFW_MOD_CAPS_LOCK) != 0) modifier |= KeyModifier.CAPS_LOCK;
-        if ((mods & GLFW.GLFW_MOD_NUM_LOCK) != 0) modifier |= KeyModifier.NUM_LOCK;
-        for (final var listener : keyEventListeners) listener.onKey(keyCode, keyAction, modifier);
+        if ((GlfwMods & GLFW.GLFW_MOD_SHIFT) != 0) modifier |= KeyModifier.SHIFT;
+        if ((GlfwMods & GLFW.GLFW_MOD_CONTROL) != 0) modifier |= KeyModifier.CONTROL;
+        if ((GlfwMods & GLFW.GLFW_MOD_ALT) != 0) modifier |= KeyModifier.ALT;
+        if ((GlfwMods & GLFW.GLFW_MOD_SUPER) != 0) modifier |= KeyModifier.SUPER;
+        if ((GlfwMods & GLFW.GLFW_MOD_CAPS_LOCK) != 0) modifier |= KeyModifier.CAPS_LOCK;
+        if ((GlfwMods & GLFW.GLFW_MOD_NUM_LOCK) != 0) modifier |= KeyModifier.NUM_LOCK;
+        return modifier;
     }
 
-    private void onMouseMove(long window, double x, double y) {
-        for (final var listener : mouseMoveEventListeners) listener.onMouseMove(x, y);
-    }
-
-    private void onMouseButton(long window, int button, int action, int mods) {
-        for (final var listener : mouseButtonEventListeners) listener.onMouseButton(button, action, mods);
-    }
-
-    private void onScroll(long window, double x, double y) {
-        for (final var listener : mouseScrollEventListeners) listener.onScroll(x, y);
+    private int GlfwMouse2MouseCode(int GlfwMouseButton) {
+        return switch (GlfwMouseButton) {
+            case GLFW.GLFW_MOUSE_BUTTON_LEFT -> MouseCode.BUTTON_LEFT;
+            case GLFW.GLFW_MOUSE_BUTTON_RIGHT -> MouseCode.BUTTON_RIGHT;
+            case GLFW.GLFW_MOUSE_BUTTON_MIDDLE -> MouseCode.BUTTON_MIDDLE;
+            case GLFW.GLFW_MOUSE_BUTTON_4 -> MouseCode.BUTTON_4;
+            case GLFW.GLFW_MOUSE_BUTTON_5 -> MouseCode.BUTTON_5;
+            case GLFW.GLFW_MOUSE_BUTTON_6 -> MouseCode.BUTTON_6;
+            case GLFW.GLFW_MOUSE_BUTTON_7 -> MouseCode.BUTTON_7;
+            case GLFW.GLFW_MOUSE_BUTTON_LAST -> MouseCode.BUTTON_LAST;
+            default -> MouseCode.UNKNOWN;
+        };
     }
 }

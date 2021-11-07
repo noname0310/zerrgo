@@ -1,6 +1,6 @@
 package core.window.event;
 
-public class KeyAction {
+public final class KeyAction {
     private KeyAction() { }
 
     public static final int PRESS = 1;

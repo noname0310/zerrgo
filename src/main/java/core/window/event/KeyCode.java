@@ -1,6 +1,6 @@
 package core.window.event;
 
-public class KeyCode {
+public final class KeyCode {
     private KeyCode() { }
 
     public static final int UNKNOWN = -1;

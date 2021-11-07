@@ -1,8 +1,6 @@
 package core.window.event;
 
-import org.lwjgl.glfw.GLFW;
-
-public class KeyModifier {
+public final class KeyModifier {
     private KeyModifier() { }
 
     public static final int SHIFT = 1;
