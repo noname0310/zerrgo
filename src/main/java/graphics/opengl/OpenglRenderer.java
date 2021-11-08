@@ -5,6 +5,7 @@ import core.graphics.RenderScheduler;
 import core.graphics.Renderer;
 import core.graphics.record.Camera;
 import core.graphics.record.OrthographicCamera;
+import core.graphics.record.PerspectiveCamera;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
@@ -40,7 +41,7 @@ public final class OpenglRenderer implements Renderer {
         GL46.glEnable(GL46.GL_DEPTH_TEST);
         GL46.glBlendFunc(GL46.GL_SRC_ALPHA, GL46.GL_ONE_MINUS_SRC_ALPHA);
 
-        renderCamera = new OrthographicCamera(frameBufferWidth, frameBufferHeight);
+        renderCamera = new OrthographicCamera(frameBufferWidth / (float)frameBufferHeight);
 
         /* initialize primitive VAO */
         primitiveVertexArrayObjectId = GL46.glGenVertexArrays();
@@ -73,7 +74,7 @@ public final class OpenglRenderer implements Renderer {
     @Override
     public void resizeFrameBuffer(int frameBufferWidth, int frameBufferHeight) {
         GL46.glViewport(0, 0, frameBufferWidth, frameBufferHeight);
-        renderCamera.setScreenRatio(frameBufferWidth, frameBufferHeight);
+        renderCamera.setAspectRatio(frameBufferWidth / (float)frameBufferHeight);
     }
 
     @Override

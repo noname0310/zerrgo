@@ -3,6 +3,7 @@ package core.graphics.record;
 import org.joml.*;
 
 public abstract class Camera {
+    private float aspectRatio;
     private final Vector3f position;
     private final Quaternionf rotation;
     private float near;
@@ -16,13 +17,22 @@ public abstract class Camera {
 
     /**
      * create camera (projection matrix must be initialized in extended type)
+     * @param aspectRatio camera frustum aspect ratio
      * @param near near clipping plain
      * @param far for clipping plain
      * @param backgroundColor color of background
      * @param position camera position
      * @param rotation camera rotation
      */
-    public Camera(float near, float far, Vector4fc backgroundColor, Vector3fc position, Quaternionfc rotation) {
+    public Camera(
+            float aspectRatio,
+            float near,
+            float far,
+            Vector3fc position,
+            Quaternionfc rotation,
+            Vector4fc backgroundColor
+    ) {
+        this.aspectRatio = aspectRatio;
         this.position = new Vector3f(position);
         this.rotation = new Quaternionf(rotation);
         this.near = near;
@@ -35,23 +45,23 @@ public abstract class Camera {
         this.projectionMatrixOutdated = true;
     }
 
-    public Vector4fc getBackgroundColor() { return backgroundColor; }
+    public final Vector4fc getBackgroundColor() { return backgroundColor; }
 
-    public void setBackgroundColor(Vector4fc color) { backgroundColor.set(color); }
+    public final void setBackgroundColor(Vector4fc color) { backgroundColor.set(color); }
 
-    public void setClippingPlanes(float near, float far) {
+    public final void setClippingPlanes(float near, float far) {
         this.near = near;
         this.far = far;
         projectionMatrixOutdated = true;
     }
 
-    public Vector2f getClippingPlanes() { return new Vector2f(near, far); }
+    public final Vector2f getClippingPlanes() { return new Vector2f(near, far); }
 
-    public float getNearClippingPlane() { return near; }
+    public final float getNearClippingPlane() { return near; }
 
-    public float getFarClippingPlane() { return far; }
+    public final float getFarClippingPlane() { return far; }
 
-    public Matrix4fc getViewProjectionMatrix() {
+    public final Matrix4fc getViewProjectionMatrix() {
         var isMatrixUpdated = false;
         if (viewMatrixOutdated) {
             updateViewMatrix();
@@ -67,19 +77,28 @@ public abstract class Camera {
         return viewProjectionMatrix;
     }
 
-    public Vector3fc getPosition() { return position; }
+    public final Vector3fc getPosition() { return position; }
 
-    public void setPosition(Vector3fc position) {
+    public final void setPosition(Vector3fc position) {
         this.position.set(position);
         viewMatrixOutdated = true;
     }
 
-    public Quaternionfc getRotation() { return rotation; }
+    public final Quaternionfc getRotation() { return rotation; }
 
-    public void setRotation(Quaternionfc rotation) {
+    public final void setRotation(Quaternionfc rotation) {
         this.rotation.set(rotation);
         viewMatrixOutdated = true;
     }
+
+    public final float getAspectRatio() { return aspectRatio; }
+
+    public final void setAspectRatio(float aspectRatio) {
+        this.aspectRatio = aspectRatio;
+        projectionMatrixOutdated = true;
+    }
+
+    public Matrix4f getViewMatrix() { return viewMatrix; }
 
     private void updateViewMatrix(){
         viewMatrix.identity()
@@ -87,8 +106,6 @@ public abstract class Camera {
                 .rotate(rotation)
                 .invert();
     }
-
-    public abstract void setScreenRatio(int width, int height);
 
     protected abstract void updateProjectionMatrix();
 }

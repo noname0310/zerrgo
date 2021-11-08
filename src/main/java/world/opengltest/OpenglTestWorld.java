@@ -2,10 +2,13 @@ package world.opengltest;
 
 import core.graphics.AssetLoader;
 import core.graphics.RenderScheduler;
+import core.graphics.record.Camera;
 import core.graphics.record.OrthographicCamera;
+import core.graphics.record.PerspectiveCamera;
 import core.window.Window;
 import core.window.event.KeyAction;
 import core.window.event.KeyCode;
+import core.window.event.MouseCode;
 import core.world.WorldContainer;
 import org.joml.*;
 
@@ -23,14 +26,20 @@ public class OpenglTestWorld implements WorldContainer {
     private final Matrix4f pikaTransformMatrix = new Matrix4f();
     private float a = 0;
 
-    private OrthographicCamera camera;
+    private Camera camera;
     private final Vector3f cameraPosition = new Vector3f(0, 0, 10);
+    private final Quaternionf cameraRotation = new Quaternionf();
     private boolean wPressed = false;
     private boolean aPressed = false;
     private boolean sPressed = false;
     private boolean dPressed = false;
     private boolean lShlPressed = false;
     private boolean spacePressed = false;
+    private boolean mouseLeftPressed = false;
+    private float lastMouseX = Float.POSITIVE_INFINITY;
+    private float lastMouseY = Float.POSITIVE_INFINITY;
+    private float xRotation = 0.0f;
+    private float yRotation = 0.0f;
 
     private static final int gridCount = 10;
     private final Vector3fc[] gridX1 = new Vector3fc[gridCount + 1];
@@ -43,16 +52,15 @@ public class OpenglTestWorld implements WorldContainer {
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
         this.renderScheduler = renderScheduler;
 
-        camera = new OrthographicCamera(
-                        window.getFrameBufferWidth(),
-                        window.getFrameBufferHeight(),
-                        3,
-                        0.0f,
-                        100.0f,
-                        cameraPosition,
-                        new Quaternionf(),
-                        new Vector4f(0.5f, 0.5f, 0.5f, 1.0f)
-                );
+        camera = new PerspectiveCamera(
+                (float) Math.toRadians(60),
+                window.getFrameBufferWidth() / (float) window.getFrameBufferHeight(),
+                0.2f,
+                100.0f,
+                cameraPosition,
+                cameraRotation,
+                new Vector4f(0.5f, 0.5f, 0.5f, 1.0f)
+        );
         renderScheduler.setCamera(camera);
 
         var model = assetLoader.getPlaneModelFromTexture(
@@ -61,12 +69,12 @@ public class OpenglTestWorld implements WorldContainer {
                 assetLoader.getTexture("src\\main\\resources\\하이라이트없음_배경흰색.png"));
 
         var texture3 = assetLoader.getTexture("src\\main\\resources\\profile-realesrgan-realesrgan.png");
-        var textureRatio = (float)texture3.getHeight() / texture3.getWidth();
+        var textureRatio = (float) texture3.getHeight() / texture3.getWidth();
         var model3 = assetLoader.getPlaneModelFromTexture(texture3);
 
         renderScheduler.addInstance(1, model, takahiroTransformMatrix);
         renderScheduler.addInstance(2, model2, pikaTransformMatrix);
-        renderScheduler.addInstance(3, model3, new Matrix4f().scale(1.0f, textureRatio,1.0f));
+        renderScheduler.addInstance(3, model3, new Matrix4f().scale(1.0f, textureRatio, 1.0f));
 
         window.getInputHandler().addOnKeyListener((keyCode, action, modifier) -> {
             if (keyCode == KeyCode.W) {
@@ -90,6 +98,25 @@ public class OpenglTestWorld implements WorldContainer {
             }
         });
 
+        window.getInputHandler().addOnMouseButtonListener((button, action, modifier) -> {
+            if (button == MouseCode.BUTTON_LEFT) {
+                if (action == KeyAction.PRESS) mouseLeftPressed = true;
+                if (action == KeyAction.RELEASE) mouseLeftPressed = false;
+            }
+        });
+
+        window.getInputHandler().addOnMouseMoveListener((x, y) -> {
+            if (lastMouseX != Float.POSITIVE_INFINITY) {
+                if (mouseLeftPressed) {
+                    xRotation += (lastMouseX - (float) x) / 500.0f;
+                    yRotation += (lastMouseY - (float) y) / 500.0f;
+                    camera.setRotation(cameraRotation.identity().rotateY(xRotation).rotateX(yRotation));
+                }
+            }
+            lastMouseX = (float) x;
+            lastMouseY = (float) y;
+        });
+
         for (int i = 0; i < gridCount + 1; ++i) {
             gridX1[i] = new Vector3f(-(gridCount / 2.0f * 0.5f), (i - (gridCount / 2.0f)) * 0.5f, 1.0f);
             gridX2[i] = new Vector3f(gridCount / 2.0f * 0.5f, (i - (gridCount / 2.0f)) * 0.5f, 1.0f);
@@ -103,14 +130,14 @@ public class OpenglTestWorld implements WorldContainer {
         a += 0.05f;
 
         takahiroRotation.rotateZ((float) Math.toRadians(1f));
-        takahiroPosition.set(Math.cos(a), Math.sin(a), 0f);
+        takahiroPosition.set(Math.cos(a), Math.sin(a), -1.5f);
         renderScheduler.updateTransform(1,
                 takahiroTransformMatrix.identity()
                         .translate(takahiroPosition)
                         .rotate(takahiroRotation)
         );
 
-        pikaPosition.set(Math.sin(a), Math.cos(a), 0f);
+        pikaPosition.set(Math.sin(a), Math.cos(a), 1.5f);
         renderScheduler.updateTransform(2,
                 pikaTransformMatrix.identity()
                         .translate(pikaPosition)
@@ -118,26 +145,28 @@ public class OpenglTestWorld implements WorldContainer {
         );
 
         if (wPressed) {
-            cameraPosition.y += 0.05;
+            cameraPosition.add(camera.getViewMatrix().positiveZ(new Vector3f()).mul(-0.1f));
             camera.setPosition(cameraPosition);
         }
         if (sPressed) {
-            cameraPosition.y -= 0.05;
+            cameraPosition.add(camera.getViewMatrix().positiveZ(new Vector3f()).mul(0.1f));
             camera.setPosition(cameraPosition);
         }
         if (aPressed) {
-            cameraPosition.x -= 0.05;
+            cameraPosition.add(camera.getViewMatrix().positiveX(new Vector3f()).mul(-0.1f));
             camera.setPosition(cameraPosition);
         }
         if (dPressed) {
-            cameraPosition.x += 0.05;
+            cameraPosition.add(camera.getViewMatrix().positiveX(new Vector3f()).mul(0.1f));
             camera.setPosition(cameraPosition);
         }
         if (lShlPressed) {
-            camera.setViewSize(camera.getViewSize() - 0.1f);
+            cameraPosition.y -= 0.05;
+            camera.setPosition(cameraPosition);
         }
         if (spacePressed) {
-            camera.setViewSize(camera.getViewSize() + 0.1f);
+            cameraPosition.y += 0.05;
+            camera.setPosition(cameraPosition);
         }
 
         for (int i = 0; i < gridCount + 1; ++i) {

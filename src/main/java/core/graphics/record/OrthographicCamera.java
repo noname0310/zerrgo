@@ -3,17 +3,12 @@ package core.graphics.record;
 import org.joml.*;
 
 public final class OrthographicCamera extends Camera {
-    private float screenRatio;
     private float viewSize;
 
-    public OrthographicCamera(
-            float screenWidth,
-            float screenHeight
-    ) {
+    public OrthographicCamera(float aspectRatio) {
         this(
-                screenWidth,
-                screenHeight,
                 2,
+                aspectRatio,
                 0.0f,
                 1000f,
                 new Vector3f(0, 0, 10),
@@ -23,17 +18,15 @@ public final class OrthographicCamera extends Camera {
     }
 
     public OrthographicCamera(
-            float screenWidth,
-            float screenHeight,
             float viewSize,
+            float aspectRatio,
             float near,
             float far,
             Vector3fc position,
             Quaternionfc rotation,
             Vector4fc backgroundColor
     ) {
-        super(near, far, backgroundColor, position, rotation);
-        this.screenRatio = screenWidth / screenHeight;
+        super(aspectRatio, near, far, position, rotation, backgroundColor);
         this.viewSize = viewSize;
     }
 
@@ -45,17 +38,12 @@ public final class OrthographicCamera extends Camera {
     }
 
     @Override
-    public void setScreenRatio(int width, int height) {
-        this.screenRatio = (float)width / (float)height;
-        projectionMatrixOutdated = true;
-    }
-
-    @Override
     protected void updateProjectionMatrix() {
         var scalar = 0.5f * viewSize;
+        var aspectRatio = getAspectRatio();
         projectionMatrix.setOrtho(
-                        -scalar * screenRatio, //left
-                        scalar * screenRatio, //right
+                        -scalar * aspectRatio, //left
+                        scalar * aspectRatio, //right
                         -scalar, //bottom
                         scalar, //top
                         getNearClippingPlane(), //near
