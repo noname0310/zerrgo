@@ -2,6 +2,7 @@ package core.graphics;
 
 import core.graphics.record.Camera;
 import core.graphics.resource.Model;
+import core.graphics.resource.Shader;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -66,4 +67,10 @@ public interface RenderScheduler {
      * set camera for get view projection matrix mainly
      */
     void setCamera(Camera camera);
+
+    /**
+     * set render post-processor
+     * @param postProcessor shader for post-processing
+     */
+    void setPostProcessor(PostProcessor postProcessor);
 }

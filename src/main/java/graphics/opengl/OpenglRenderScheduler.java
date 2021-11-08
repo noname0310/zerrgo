@@ -1,6 +1,7 @@
 package graphics.opengl;
 
 import core.ZerrgoEngine;
+import core.graphics.PostProcessor;
 import core.graphics.RenderScheduler;
 import core.graphics.record.Camera;
 import core.graphics.resource.Model;
@@ -135,6 +136,11 @@ public final class OpenglRenderScheduler implements RenderScheduler {
 
     @Override
     public void setCamera(Camera camera) { openglRenderer.setCamera(camera); }
+
+    @Override
+    public void setPostProcessor(PostProcessor postProcessor) {
+
+    }
 
     private RenderInstanceValue getItemById(int id) {
         var model = idModelMap.get(id);

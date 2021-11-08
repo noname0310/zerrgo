@@ -2,7 +2,6 @@ package world.opengltest;
 
 import core.graphics.AssetLoader;
 import core.graphics.RenderScheduler;
-import core.graphics.record.Camera;
 import core.graphics.record.OrthographicCamera;
 import core.window.Window;
 import core.window.event.KeyAction;
@@ -24,12 +23,14 @@ public class OpenglTestWorld implements WorldContainer {
     private final Matrix4f pikaTransformMatrix = new Matrix4f();
     private float a = 0;
 
-    private Camera camera;
+    private OrthographicCamera camera;
     private final Vector3f cameraPosition = new Vector3f(0, 0, 10);
     private boolean wPressed = false;
     private boolean aPressed = false;
     private boolean sPressed = false;
     private boolean dPressed = false;
+    private boolean lShlPressed = false;
+    private boolean spacePressed = false;
 
     private static final int gridCount = 10;
     private final Vector3fc[] gridX1 = new Vector3fc[gridCount + 1];
@@ -80,14 +81,20 @@ public class OpenglTestWorld implements WorldContainer {
             } else if (keyCode == KeyCode.D) {
                 if (action == KeyAction.PRESS) dPressed = true;
                 if (action == KeyAction.RELEASE) dPressed = false;
+            } else if (keyCode == KeyCode.LEFT_SHIFT) {
+                if (action == KeyAction.PRESS) lShlPressed = true;
+                if (action == KeyAction.RELEASE) lShlPressed = false;
+            } else if (keyCode == KeyCode.SPACE) {
+                if (action == KeyAction.PRESS) spacePressed = true;
+                if (action == KeyAction.RELEASE) spacePressed = false;
             }
         });
 
         for (int i = 0; i < gridCount + 1; ++i) {
-            gridX1[i] = new Vector3f(-(gridCount / 2.0f * 0.5f), (i - (gridCount / 2.0f)) * 0.5f, 0.0f);
-            gridX2[i] = new Vector3f(gridCount / 2.0f * 0.5f, (i - (gridCount / 2.0f)) * 0.5f, 0.0f);
-            gridY1[i] = new Vector3f((i - (gridCount / 2.0f)) * 0.5f, -(gridCount / 2.0f * 0.5f), 0.0f);
-            gridY2[i] = new Vector3f((i - (gridCount / 2.0f)) * 0.5f, gridCount / 2.0f * 0.5f, 0.0f);
+            gridX1[i] = new Vector3f(-(gridCount / 2.0f * 0.5f), (i - (gridCount / 2.0f)) * 0.5f, 1.0f);
+            gridX2[i] = new Vector3f(gridCount / 2.0f * 0.5f, (i - (gridCount / 2.0f)) * 0.5f, 1.0f);
+            gridY1[i] = new Vector3f((i - (gridCount / 2.0f)) * 0.5f, -(gridCount / 2.0f * 0.5f), 1.0f);
+            gridY2[i] = new Vector3f((i - (gridCount / 2.0f)) * 0.5f, gridCount / 2.0f * 0.5f, 1.0f);
         }
     }
 
@@ -125,6 +132,12 @@ public class OpenglTestWorld implements WorldContainer {
         if (dPressed) {
             cameraPosition.x += 0.05;
             camera.setPosition(cameraPosition);
+        }
+        if (lShlPressed) {
+            camera.setViewSize(camera.getViewSize() - 0.1f);
+        }
+        if (spacePressed) {
+            camera.setViewSize(camera.getViewSize() + 0.1f);
         }
 
         for (int i = 0; i < gridCount + 1; ++i) {
