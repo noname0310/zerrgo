@@ -11,7 +11,7 @@ public class Time {
     private Time() { }
 
     public static Time getInstance() {
-        if(instance == null) {
+        if(instance != null) {
             return instance;
         } else {
             instance = new Time();

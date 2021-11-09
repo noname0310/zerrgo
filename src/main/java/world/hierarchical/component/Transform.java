@@ -1,6 +1,7 @@
 package world.hierarchical.component;
 
 import org.joml.*;
+import org.lwjgl.system.CallbackI;
 import world.hierarchical.Component;
 import world.hierarchical.component.characteristics.Positional;
 
@@ -13,6 +14,15 @@ public class Transform extends Component implements Positional {
     private Quaternionf rotation;
     private Quaternionf localRotation;
     private boolean isOutdated = true;
+
+    public Transform(){
+        scale = new Vector3f(0,0,0);
+        localScale = new Vector3f(0,0,0);
+        localPosition = new Vector3f(0,0,0);
+        localRotation = new Quaternionf();
+        position = new Vector3f(0,0,0);
+        rotation = new Quaternionf();
+    }
 
     @Override
     public Vector3fc getPosition() {

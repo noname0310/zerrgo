@@ -20,6 +20,9 @@ public class GameObject {
     public void update() {
         for (Component component : components) {
             if (component instanceof Updatable) {
+                if(!((Updatable)component).isStarted){
+                    ((Updatable)component).start();
+                }
                 ((Updatable) component).update();
             }
             if(component instanceof Positional) {
@@ -56,36 +59,38 @@ public class GameObject {
     }
 
     public void setParent(GameObject parent) {
-        if(this.parent.getChildren().contains(this)){
-            this.parent.removeChild(this);
-        }
+        world = parent.world;
+        if(this.parent != null)
+            this.parent.children.remove(this);
         this.parent = parent;
         if(parent.getChildren().contains(this)){
-            parent.appendChild(this);
+            this.parent.children.add(this);
         }
     }
 
     public void appendChild(GameObject object){
         children.add(object);
-        if(object.getParent() != this) {
-            object.setParent(this);
-        }
+        object.world = world;
+        object.parent = this;
     }
 
     public void removeChild(GameObject object){
         children.remove(object);
         if(object.getParent() == this) {
-            object.setParent(null);
+            object.parent = null;
         }
     }
 
     public boolean appendComponent(Component component){
+        component.setGameObject(this);
         if(component instanceof Positional) {
             if(isPositional) {
                 return false;
             }
+            component.setGameObject(this);
             transform = component;
             components.add(component);
+            isPositional = true;
             return true;
         }
         components.add(component);
@@ -93,6 +98,7 @@ public class GameObject {
     }
 
     public void removeComponent(Component component){
+        component.setGameObject(null);
         components.remove(component);
         if(component instanceof Positional) {
             isPositional = false;
@@ -113,6 +119,9 @@ public class GameObject {
 
     public void setWorld(HierarchicalWorld w){
         world = w;
+        for(GameObject object : children){
+            object.setWorld(w);
+        }
     }
 
 }

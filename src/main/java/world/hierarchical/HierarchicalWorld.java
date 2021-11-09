@@ -13,32 +13,26 @@ import world.Time;
 public class HierarchicalWorld implements WorldContainer {
     private Window window;
     private final Time time = Time.getInstance();
-    private final List<GameObject> objects = new ArrayList<>();
+    private final GameObject rootObject;
     private RenderScheduler renderScheduler;
     private AssetLoader assetLoader;
+
+    public HierarchicalWorld(GameObject rootGameObject){
+        rootObject = rootGameObject;
+        rootObject.setWorld(this);
+    }
 
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
         this.window = window;
         this.renderScheduler = renderScheduler;
         this.assetLoader = assetLoader;
-
-        //test
-        GameObject goa = new GameObject();
-        GameObject gob = new GameObject();
-        GameObject goc = new GameObject();
-
-        goa.setParent(gob);
-        goa.setParent(goc);
     }
 
     @Override
     public void update() {
         time.Update();
-        ZerrgoEngine.Logger().log(Level.INFO, "fps : " + 1 / Time.getDeltaTime());
-        for (GameObject object:objects) {
-            object.update();
-        }
+        rootObject.update();
     }
 
     public RenderScheduler getRenderScheduler(){
@@ -49,14 +43,16 @@ public class HierarchicalWorld implements WorldContainer {
         return assetLoader;
     }
 
+    public Window getWindow(){return window;}
+
     public GameObject addGameObject(GameObject o){
-        objects.add(o);
+        rootObject.appendChild(o);
         o.setWorld(this);
         return o;
     }
 
     public boolean removeGameObject(GameObject o){
-        return objects.remove(o);
+        return rootObject.getChildren().remove(o);
     }
 
 }
