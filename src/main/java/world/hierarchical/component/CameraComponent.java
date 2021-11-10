@@ -6,12 +6,9 @@ import core.graphics.record.OrthographicCamera;
 import core.graphics.record.PerspectiveCamera;
 import org.joml.*;
 import world.hierarchical.Component;
-import world.hierarchical.component.characteristics.Positional;
 import world.hierarchical.component.characteristics.Updatable;
-import core.graphics.record.Camera;
 
 import java.lang.Math;
-import java.lang.reflect.Type;
 import java.util.logging.Level;
 
 public class CameraComponent extends Component implements Updatable {
@@ -26,7 +23,7 @@ public class CameraComponent extends Component implements Updatable {
     @Override
     public void update() {
         if(enabled){
-            Positional t = (Positional) this.getGameObject().getTransform();
+            Transform t = this.getGameObject().getTransform();
             orthographicCamera.setPosition(t.getPosition());
             orthographicCamera.setRotation(t.getRotation());
             perspectiveCamera.setPosition(t.getPosition());
@@ -36,9 +33,8 @@ public class CameraComponent extends Component implements Updatable {
 
     @Override
     public void start(){
-        // DI를 만들자
         scheduler = this.getGameObject().getWorld().getRenderScheduler();
-        if(this.getGameObject().isPositional() && getGameObject().getTransform() instanceof Transform){
+        if(this.getGameObject().getTransform() != null){
             perspectiveCamera = new PerspectiveCamera(
                     (float) Math.toRadians(60),
                     getGameObject().getWorld().getWindow().getFrameBufferWidth() / (float) getGameObject().getWorld().getWindow().getFrameBufferHeight(),
@@ -57,7 +53,6 @@ public class CameraComponent extends Component implements Updatable {
                     new Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
             setPerspective(isPerspective);
             enabled = true;
-            //render?
         }
         else {
             ZerrgoEngine.Logger().log(Level.SEVERE, "GameObject of " + this + " is not positional.");

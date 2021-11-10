@@ -1,10 +1,13 @@
 package world.hierarchical;
+import core.ZerrgoEngine;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import world.hierarchical.component.characteristics.Positional;
+import world.hierarchical.component.Transform;
+import world.hierarchical.component.annotation.DisallowMultipleComponent;
 import world.hierarchical.component.characteristics.Renderable;
 import world.hierarchical.component.characteristics.Updatable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +16,7 @@ public class GameObject {
     private final List<GameObject> children = new ArrayList<>();
     private GameObject parent;
     private final List<Component> components = new ArrayList<>();
-    private boolean isPositional = false;
-    private Component transform;
+    private Transform transform;
     private HierarchicalWorld world;
 
     public void start(){
@@ -36,13 +38,11 @@ public class GameObject {
             if (component instanceof Renderable) {
                 ((Renderable) component).render();
             }
-            if(component instanceof Positional) {
-                if(parent.isPositional()){
-                    Vector3f parentPosition = new Vector3f(((Positional)(parent.getTransform())).getPosition());
-                    Quaternionf parentRotation = new Quaternionf(((Positional)(parent.getTransform())).getRotation());
-                    ((Positional) component).setPosition(parentPosition.add(((Positional) component).getLocalPosition()));
-                    ((Positional) component).setRotation(parentRotation.add(((Positional) component).getLocalRotation()));
-                }
+            if(transform != null && parent.transform != null) {
+                Vector3f parentPosition = new Vector3f(parent.transform.getPosition());
+                Quaternionf parentRotation = new Quaternionf(parent.transform.getRotation());
+                transform.setPosition(parentPosition.add(transform.getLocalPosition()));
+                transform.setRotation(parentRotation.add(transform.getLocalRotation()));
             }
         }
         for (GameObject object : children) {
@@ -93,39 +93,70 @@ public class GameObject {
         }
     }
 
-    public boolean appendComponent(Component component){
-        component.setGameObject(this);
-        if(component instanceof Positional) {
-            if(isPositional) {
-                return false;
-            }
-            component.setGameObject(this);
-            transform = component;
-            components.add(component);
-            isPositional = true;
-            return true;
+    public Component appendComponent(Class<? extends Component> componentType){
+        if (!checkMultipleComponent(componentType)) return null;
+
+        Component component = null;
+        try {
+            component = componentType.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException |
+                InstantiationException |
+                IllegalAccessException |
+                InvocationTargetException e) {
+            ZerrgoEngine.Logger().warning("component("
+                    + componentType.getName() + ") must have default constructor!");
         }
-        components.add(component);
+
+        assert component != null;
+        component.setGameObject(this);
+        if(component instanceof Transform transform) {
+            this.transform = transform;
+        } else {
+            components.add(component);
+        }
+        return component;
+    }
+
+    public interface ComponentInitializeFunc {
+        void execute(Component component);
+    }
+
+    public Component appendComponentWith(
+            Class<? extends Component> componentType,
+            ComponentInitializeFunc componentInitializeFunc
+    ) {
+        var component = appendComponent(componentType);
+        if (component == null) return null;
+        componentInitializeFunc.execute(component);
+        return component;
+    }
+
+    private boolean checkMultipleComponent(Class<? extends Component> componentType) {
+        for (var annotation : componentType.getAnnotations()) {
+            if (annotation.annotationType().equals(DisallowMultipleComponent.class)) {
+                var find = false;
+                for (var item : components) {
+                    if (item.getClass().equals(componentType)) {
+                        find = true;
+                        ZerrgoEngine.Logger().warning("component("
+                                + componentType.getName() + ") is not allowed to multiple append");
+                        return false;
+                    }
+                }
+            }
+        }
         return true;
     }
 
-    public void appendComponents(Component[] components){
-        for (var component : components) appendComponent(component);
-    }
-
     public void removeComponent(Component component){
-        component.setGameObject(null);
-        components.remove(component);
-        if(component instanceof Positional) {
-            isPositional = false;
+        if (component instanceof Transform) {
+            transform = null;
+            return;
         }
+        components.remove(component);
     }
 
-    public boolean isPositional(){
-        return isPositional;
-    }
-
-    public Component getTransform(){
+    public Transform getTransform(){
         return transform;
     }
 

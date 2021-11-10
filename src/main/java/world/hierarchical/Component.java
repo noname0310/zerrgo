@@ -1,5 +1,7 @@
 package world.hierarchical;
 
+import core.ZerrgoEngine;
+
 public class Component {
     private GameObject gameObject;
 
@@ -8,16 +10,5 @@ public class Component {
     }
     public GameObject getGameObject(){
         return gameObject;
-    }
-
-    public interface InitializeFunc {
-        void execute(Component go);
-    }
-
-    public static <T extends Component> T BuildWith(InitializeFunc initializeFunc) {
-
-        var component = new T();
-        initializeFunc.execute(component);
-        return component;
     }
 }
