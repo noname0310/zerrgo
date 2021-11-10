@@ -8,7 +8,7 @@ import java.util.Objects;
 public final class Model implements core.graphics.resource.Model {
     private final String name;
     private final core.graphics.resource.Mesh[] meshes;
-    private final Material[] materials;
+    private Material[] materials;
 
     /**
      * create model with meshes and materials
@@ -54,7 +54,23 @@ public final class Model implements core.graphics.resource.Model {
     @Override
     public String getName() { return name; }
 
-    core.graphics.resource.Mesh[] getMeshes() { return meshes; }
+    @Override
+    public Material getMaterialAt(int i) {
+        return materials[i];
+    }
 
-    Material[] getMaterials() { return materials; }
+    @Override
+    public void setMaterialAt(int i, Material material) {
+        materials[i] = material;
+    }
+
+    @Override
+    public Material[] getMaterials() { return materials; }
+
+    @Override
+    public void setMaterials(Material[] materials) {
+        this.materials = materials;
+    }
+
+    core.graphics.resource.Mesh[] getMeshes() { return meshes; }
 }

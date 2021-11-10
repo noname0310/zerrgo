@@ -6,12 +6,13 @@ import core.graphics.record.OrthographicCamera;
 import core.graphics.record.PerspectiveCamera;
 import org.joml.*;
 import world.hierarchical.Component;
+import world.hierarchical.component.characteristics.Startable;
 import world.hierarchical.component.characteristics.Updatable;
 
 import java.lang.Math;
 import java.util.logging.Level;
 
-public class CameraComponent extends Component implements Updatable {
+public class CameraComponent extends Component implements Updatable, Startable {
     private boolean enabled = false;
     private PerspectiveCamera perspectiveCamera;
     private OrthographicCamera orthographicCamera;
@@ -40,16 +41,16 @@ public class CameraComponent extends Component implements Updatable {
                     getGameObject().getWorld().getWindow().getFrameBufferWidth() / (float) getGameObject().getWorld().getWindow().getFrameBufferHeight(),
                     0.2f,
                     100.0f,
-                    ((Transform)this.getGameObject().getTransform()).getPosition(),
-                    ((Transform)this.getGameObject().getTransform()).getRotation(),
+                    this.getGameObject().getTransform().getPosition(),
+                    this.getGameObject().getTransform().getRotation(),
                     new Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
             orthographicCamera = new OrthographicCamera(
                     10,
                     getGameObject().getWorld().getWindow().getFrameBufferWidth() / (float) getGameObject().getWorld().getWindow().getFrameBufferHeight(),
                     0.2f,
                     100.0f,
-                    ((Transform)this.getGameObject().getTransform()).getPosition(),
-                    ((Transform)this.getGameObject().getTransform()).getRotation(),
+                    this.getGameObject().getTransform().getPosition(),
+                    this.getGameObject().getTransform().getRotation(),
                     new Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
             setPerspective(isPerspective);
             enabled = true;

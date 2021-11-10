@@ -2,22 +2,18 @@ package world.hierarchical.component;
 
 import core.ZerrgoEngine;
 import core.graphics.RenderScheduler;
+import core.graphics.record.Material;
 import core.graphics.resource.Model;
-import org.joml.Matrix4f;
+import core.graphics.resource.Texture;
+import org.joml.Vector4f;
 import world.hierarchical.Component;
 import world.hierarchical.component.characteristics.Renderable;
-import world.hierarchical.component.characteristics.Updatable;
+import world.hierarchical.component.characteristics.Startable;
 
-import java.util.logging.Level;
-
-public class Sprite extends Component implements Renderable, Updatable {
+public class Sprite extends Component implements Renderable, Startable {
     private int id;
-    private Model texture;
+    private Model model;
     private RenderScheduler scheduler;
-    boolean isStarted = false;
-    public Sprite() { }
-
-    public void setTexture(Model texture) { this.texture = texture; }
 
     @Override
     public void render() {
@@ -27,24 +23,32 @@ public class Sprite extends Component implements Renderable, Updatable {
     }
 
     @Override
-    public void update() {
-
+    public void start() {
+        scheduler = getGameObject().getWorld().getRenderScheduler();
+        var assetLoader = getGameObject().getWorld().getAssetLoader();
+        this.model = assetLoader.addModel(
+                "(" + id + ")model",
+                assetLoader.getPlaneMesh(),
+                new Material(
+                        id + "_mat",
+                        null,
+                        new Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
+                        assetLoader.getShader(
+                                "src\\main\\resources\\shader\\standardTexture2d_vertex.glsl",
+                                "src\\main\\resources\\shader\\standardTexture2d_fragment.glsl"
+                        )
+                ));
     }
 
-    @Override
-    public void start() {
-        isStarted = true;
-        scheduler = getGameObject().getWorld().getRenderScheduler();
+    public void setTexture(Texture texture) {
+        model.getMaterialAt(0).setTexture(texture);
+
         if(getGameObject().getTransform() != null){
-            /*TODO
-               renderScheduler 사용을 위해 사용된 인스턴스 아이디를 월드에 저장할 필요가 있어 보임
-               렌더스케쥴러에 addInstance
-             */
             id = getGameObject().getWorld().addRenderInstanceIdCounter();
-            scheduler.addInstance(id, texture, getGameObject().getTransform().getMatrix());
+            scheduler.addInstance(id, model, getGameObject().getTransform().getMatrix());
         }
         else{
-            ZerrgoEngine.Logger().log(Level.SEVERE, "GameObject of " + this + " is not positional.");
+            ZerrgoEngine.Logger().severe("GameObject of " + this + " is not positional.");
             getGameObject().removeComponent(this);
         }
     }

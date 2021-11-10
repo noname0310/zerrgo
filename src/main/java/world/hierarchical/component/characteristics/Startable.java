@@ -1,5 +1,5 @@
 package world.hierarchical.component.characteristics;
 
-public interface Updatable {
-    void update();
+public interface Startable {
+    void start();
 }

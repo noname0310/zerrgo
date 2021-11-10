@@ -3,7 +3,6 @@ package world.opengltest;
 import core.graphics.AssetLoader;
 import core.graphics.RenderScheduler;
 import core.graphics.record.Camera;
-import core.graphics.record.OrthographicCamera;
 import core.graphics.record.PerspectiveCamera;
 import core.window.Window;
 import core.window.event.KeyAction;

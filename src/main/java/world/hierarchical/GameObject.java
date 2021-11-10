@@ -1,10 +1,12 @@
 package world.hierarchical;
+
 import core.ZerrgoEngine;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import world.hierarchical.component.Transform;
 import world.hierarchical.component.annotation.DisallowMultipleComponent;
 import world.hierarchical.component.characteristics.Renderable;
+import world.hierarchical.component.characteristics.Startable;
 import world.hierarchical.component.characteristics.Updatable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -13,24 +15,22 @@ import java.util.List;
 
 public class GameObject {
     private boolean isEnabled = false;
-    private final List<GameObject> children = new ArrayList<>();
     private GameObject parent;
+    private final List<GameObject> children = new ArrayList<>();
     private final List<Component> components = new ArrayList<>();
     private Transform transform;
     private HierarchicalWorld world;
 
-    public void start(){
+    void start() {
         for (Component component : components) {
-            if (component instanceof Updatable) {
-                ((Updatable) component).start();
-            }
+            if (component instanceof Startable startable) startable.start();
         }
         for (GameObject object : children) {
             object.start();
         }
     }
 
-    public void update() {
+    void update() {
         for (Component component : components) {
             if (component instanceof Updatable) {
                 ((Updatable) component).update();
@@ -38,7 +38,7 @@ public class GameObject {
             if (component instanceof Renderable) {
                 ((Renderable) component).render();
             }
-            if(transform != null && parent.transform != null) {
+            if (transform != null && parent.transform != null) {
                 Vector3f parentPosition = new Vector3f(parent.transform.getPosition());
                 Quaternionf parentRotation = new Quaternionf(parent.transform.getRotation());
                 transform.setPosition(parentPosition.add(transform.getLocalPosition()));
@@ -68,48 +68,51 @@ public class GameObject {
 
     public void setParent(GameObject parent) {
         world = parent.world;
-        if(this.parent != null)
+        if (this.parent != null)
             this.parent.children.remove(this);
         this.parent = parent;
-        if(parent.getChildren().contains(this)){
+        if (parent.getChildren().contains(this)) {
             this.parent.children.add(this);
         }
     }
 
-    public void appendChild(GameObject object){
+    public void appendChild(GameObject object) {
         children.add(object);
         object.world = world;
         object.parent = this;
     }
 
-    public void appendChildren(GameObject[] objects){
+    public void appendChildren(GameObject... objects) {
         for (var go : objects) appendChild(go);
     }
 
-    public void removeChild(GameObject object){
+    public void removeChild(GameObject object) {
         children.remove(object);
-        if(object.getParent() == this) {
+        if (object.getParent() == this) {
             object.parent = null;
         }
     }
 
-    public Component appendComponent(Class<? extends Component> componentType){
+    public <T extends Component> T appendComponent(Class<T> componentType) {
         if (!checkMultipleComponent(componentType)) return null;
 
-        Component component = null;
+        T component = null;
         try {
             component = componentType.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException |
                 InstantiationException |
-                IllegalAccessException |
-                InvocationTargetException e) {
+                IllegalAccessException e) {
             ZerrgoEngine.Logger().warning("component("
                     + componentType.getName() + ") must have default constructor!");
+        } catch (InvocationTargetException e) {
+            ZerrgoEngine.Logger().warning("component("
+                    + componentType.getName() + ") construction failed!");
+            ZerrgoEngine.Logger().severe(e.getTargetException().getMessage());
         }
+        if (component == null) return null;
 
-        assert component != null;
         component.setGameObject(this);
-        if(component instanceof Transform transform) {
+        if (component instanceof Transform transform) {
             this.transform = transform;
         } else {
             components.add(component);
@@ -117,27 +120,11 @@ public class GameObject {
         return component;
     }
 
-    public interface ComponentInitializeFunc {
-        void execute(Component component);
-    }
-
-    public Component appendComponentWith(
-            Class<? extends Component> componentType,
-            ComponentInitializeFunc componentInitializeFunc
-    ) {
-        var component = appendComponent(componentType);
-        if (component == null) return null;
-        componentInitializeFunc.execute(component);
-        return component;
-    }
-
     private boolean checkMultipleComponent(Class<? extends Component> componentType) {
         for (var annotation : componentType.getAnnotations()) {
             if (annotation.annotationType().equals(DisallowMultipleComponent.class)) {
-                var find = false;
                 for (var item : components) {
                     if (item.getClass().equals(componentType)) {
-                        find = true;
                         ZerrgoEngine.Logger().warning("component("
                                 + componentType.getName() + ") is not allowed to multiple append");
                         return false;
@@ -148,7 +135,7 @@ public class GameObject {
         return true;
     }
 
-    public void removeComponent(Component component){
+    public void removeComponent(Component component) {
         if (component instanceof Transform) {
             transform = null;
             return;
@@ -156,28 +143,81 @@ public class GameObject {
         components.remove(component);
     }
 
-    public Transform getTransform(){
+    public Transform getTransform() {
         return transform;
     }
 
-    public HierarchicalWorld getWorld(){
+    public HierarchicalWorld getWorld() {
         return world;
     }
 
-    public void setWorld(HierarchicalWorld w){
+    public void setWorld(HierarchicalWorld w) {
         world = w;
-        for(GameObject object : children){
+        for (GameObject object : children) {
             object.setWorld(w);
         }
     }
 
-    public interface InitializeFunc {
-        void execute(GameObject go);
+    public static final class GameObjectBuilder {
+        private final GameObject gameObject;
+        private final List<GameObjectBuilder> children;
+        private final List<InternalComponentInitializeFunc<? extends Component>> componentInitializeFuncList;
+
+        private GameObjectBuilder(GameObject gameObject) {
+            this.gameObject = gameObject;
+            this.children = new ArrayList<>();
+            this.componentInitializeFuncList = new ArrayList<>();
+        }
+
+        public <T extends Component> GameObjectBuilder component(Class<T> componentType) {
+            gameObject.appendComponent(componentType);
+            return this;
+        }
+
+        public interface ComponentInitializeFunc<T extends Component> {
+            void execute(T component);
+        }
+
+        private interface InternalComponentInitializeFunc<T extends Component> {
+            void execute();
+        }
+
+        public <T extends Component> GameObjectBuilder component(
+                Class<T> componentType,
+                ComponentInitializeFunc<T> componentInitializeFunc
+        ) {
+            var component = gameObject.appendComponent(componentType);
+            if (component != null) {
+                this.componentInitializeFuncList.add(() -> componentInitializeFunc.execute(component));
+            }
+            return this;
+        }
+
+        public GameObjectBuilder child(GameObjectBuilder gameObject) {
+            children.add(gameObject);
+            return this;
+        }
+
+        public void initialize(HierarchicalWorld world) {
+            gameObject.setWorld(world);
+            gameObject.start();
+            for (var child : children) {
+                child.initialize(world);
+            }
+        }
+
+        public GameObject build() {
+            for (var item : children) {
+                gameObject.appendChild(item.build());
+            }
+            for (var item : componentInitializeFuncList) {
+                item.execute();
+            }
+            return gameObject;
+        }
     }
 
-    public static GameObject BuildWith(InitializeFunc initializeFunc) {
-        var go = new GameObject();
-        initializeFunc.execute(go);
-        return go;
+    public static GameObjectBuilder CreateWith(String name) {
+        return new GameObjectBuilder(new GameObject());
     }
 }

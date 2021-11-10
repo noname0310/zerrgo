@@ -3,6 +3,5 @@ package world.hierarchical;
 import core.graphics.AssetLoader;
 
 public interface HierarchicalScene {
-    void build(AssetLoader assetLoader);
-    GameObject getRootObject();
+    GameObject.GameObjectBuilder create(AssetLoader assetLoader);
 }

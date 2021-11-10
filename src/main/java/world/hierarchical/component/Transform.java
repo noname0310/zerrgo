@@ -32,10 +32,9 @@ public class Transform extends Component {
         return position;
     }
 
-    public Vector3fc setPosition(Vector3fc v) {
+    public void setPosition(Vector3fc v) {
         position.set(v);
         isOutdated = true;
-        return position;
     }
 
     public Vector3fc getLocalPosition() {
@@ -72,10 +71,9 @@ public class Transform extends Component {
         return rotation;
     }
 
-    public Quaternionfc setRotation(Quaternionfc q) {
+    public void setRotation(Quaternionfc q) {
         rotation.set(q);
         isOutdated = true;
-        return rotation;
     }
 
     public Quaternionfc getLocalRotation() {
