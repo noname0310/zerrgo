@@ -13,7 +13,11 @@ public final class Main {
                 .windowSize(1280, 720)
                 .windowName("hello world")
                 .enableVsync()
-                .world(new HierarchicalWorld(TestHierarchy.build()))
+                .world(
+                        new HierarchicalWorld(
+                                new TestHierarchy()
+                        )
+                )
                 .run();
     }
 }

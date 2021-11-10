@@ -17,13 +17,24 @@ public class GameObject {
     private Component transform;
     private HierarchicalWorld world;
 
+    public void start(){
+        for (Component component : components) {
+            if (component instanceof Updatable) {
+                ((Updatable) component).start();
+            }
+        }
+        for (GameObject object : children) {
+            object.start();
+        }
+    }
+
     public void update() {
         for (Component component : components) {
             if (component instanceof Updatable) {
-                if(!((Updatable)component).isStarted){
-                    ((Updatable)component).start();
-                }
                 ((Updatable) component).update();
+            }
+            if (component instanceof Renderable) {
+                ((Renderable) component).render();
             }
             if(component instanceof Positional) {
                 if(parent.isPositional()){
@@ -31,9 +42,6 @@ public class GameObject {
                     Quaternionf parentRotation = new Quaternionf(((Positional)(parent.getTransform())).getRotation());
                     ((Positional) component).setPosition(parentPosition.add(((Positional) component).getLocalPosition()));
                     ((Positional) component).setRotation(parentRotation.add(((Positional) component).getLocalRotation()));
-                }
-                if (component instanceof Renderable) {
-                    ((Renderable) component).render();
                 }
             }
         }
@@ -74,6 +82,10 @@ public class GameObject {
         object.parent = this;
     }
 
+    public void appendChildren(GameObject[] objects){
+        for (var go : objects) appendChild(go);
+    }
+
     public void removeChild(GameObject object){
         children.remove(object);
         if(object.getParent() == this) {
@@ -95,6 +107,10 @@ public class GameObject {
         }
         components.add(component);
         return true;
+    }
+
+    public void appendComponents(Component[] components){
+        for (var component : components) appendComponent(component);
     }
 
     public void removeComponent(Component component){
@@ -124,4 +140,13 @@ public class GameObject {
         }
     }
 
+    public interface InitializeFunc {
+        void execute(GameObject go);
+    }
+
+    public static GameObject BuildWith(InitializeFunc initializeFunc) {
+        var go = new GameObject();
+        initializeFunc.execute(go);
+        return go;
+    }
 }

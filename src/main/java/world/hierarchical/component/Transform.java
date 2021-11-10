@@ -6,13 +6,13 @@ import world.hierarchical.Component;
 import world.hierarchical.component.characteristics.Positional;
 
 public class Transform extends Component implements Positional {
-    private Matrix4x3f matrix = new Matrix4x3f();
-    private Vector3f position;
-    private Vector3f localPosition;
-    private Vector3f scale;
-    private Vector3f localScale;
-    private Quaternionf rotation;
-    private Quaternionf localRotation;
+    private final Matrix4f matrix = new Matrix4f();
+    private final Vector3f position;
+    private final Vector3f localPosition;
+    private final Vector3f scale;
+    private final Vector3f localScale;
+    private final Quaternionf rotation;
+    private final Quaternionf localRotation;
     private boolean isOutdated = true;
 
     public Transform(){
@@ -31,7 +31,7 @@ public class Transform extends Component implements Positional {
 
     @Override
     public Vector3fc setPosition(Vector3fc v) {
-        position = new Vector3f(v);
+        position.set(v);
         isOutdated = true;
         return position;
     }
@@ -43,7 +43,7 @@ public class Transform extends Component implements Positional {
 
     @Override
     public Vector3fc setLocalPosition(Vector3fc v) {
-        localPosition = new Vector3f(v);
+        localPosition.set(v);
         isOutdated = true;
         return localPosition;
     }
@@ -55,7 +55,7 @@ public class Transform extends Component implements Positional {
 
     @Override
     public Vector3fc setScale(Vector3fc v) {
-        scale = new Vector3f(v);
+        scale.set(v);
         isOutdated = true;
         return scale;
     }
@@ -67,7 +67,7 @@ public class Transform extends Component implements Positional {
 
     @Override
     public Vector3fc setLocalScale(Vector3fc v) {
-        localScale = new Vector3f(v);
+        localScale.set(v);
         isOutdated = true;
         return localScale;
     }
@@ -79,7 +79,7 @@ public class Transform extends Component implements Positional {
 
     @Override
     public Quaternionfc setRotation(Quaternionfc q) {
-        rotation = new Quaternionf(q);
+        rotation.set(q);
         isOutdated = true;
         return rotation;
     }
@@ -91,14 +91,14 @@ public class Transform extends Component implements Positional {
 
     @Override
     public Quaternionfc setLocalRotation(Quaternionfc q) {
-        localRotation = new Quaternionf(q);
+        localRotation.set(q);
         isOutdated = true;
         return localRotation;
     }
 
-    public Matrix4x3fc getMatrix() {
+    public Matrix4fc getMatrix() {
         if(isOutdated) {
-            matrix = new Matrix4x3f();
+            matrix.identity();
             matrix.translate(position);
             matrix.rotate(rotation);
             matrix.scale(scale);

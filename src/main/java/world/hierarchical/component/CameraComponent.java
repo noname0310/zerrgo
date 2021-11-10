@@ -20,6 +20,7 @@ public class CameraComponent extends Component implements Updatable {
     private OrthographicCamera orthographicCamera;
     private boolean isPerspective = true;
     private RenderScheduler scheduler;
+    boolean isStarted = false;
 
 
     @Override
@@ -62,7 +63,9 @@ public class CameraComponent extends Component implements Updatable {
             ZerrgoEngine.Logger().log(Level.SEVERE, "GameObject of " + this + " is not positional.");
             enabled = false;
         }
+        isStarted = true;
     }
+
 
     public boolean isPerspective() {
         return isPerspective;
