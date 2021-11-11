@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GameObject {
     private boolean isEnabled = false;
-    private String name = "";
+    private String name;
     private GameObject parent;
     private final List<GameObject> children = new ArrayList<>();
     private final List<Component> components = new ArrayList<>();
@@ -23,6 +23,10 @@ public class GameObject {
     private final List<Renderable> renderableComponents = new ArrayList<>();
     private Transform transform;
     private HierarchicalWorld world;
+
+    private GameObject(String name){
+        this.name = name;
+    }
 
     void start() {
         for (Component component : components) {
@@ -88,6 +92,7 @@ public class GameObject {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Component> T getComponent(Class<? extends Component> componentType){
         for(var compo : components){
             if(compo.getClass().equals(componentType)){
@@ -97,7 +102,8 @@ public class GameObject {
         return null;
     }
 
-    public <T> List<T> getComponents(Class<? extends Component> componentType){
+    @SuppressWarnings("unchecked")
+    public <T extends Component> List<T> getComponents(Class<? extends Component> componentType){
         List<T> result = new ArrayList<>();
         for(var compo : components){
             if(compo.getClass().equals(componentType)){
@@ -252,6 +258,6 @@ public class GameObject {
     }
 
     public static GameObjectBuilder CreateWith(String name) {
-        return new GameObjectBuilder(new GameObject());
+        return new GameObjectBuilder(new GameObject(name));
     }
 }
