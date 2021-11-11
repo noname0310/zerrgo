@@ -15,9 +15,12 @@ import java.util.List;
 
 public class GameObject {
     private boolean isEnabled = false;
+    private String name = "";
     private GameObject parent;
     private final List<GameObject> children = new ArrayList<>();
     private final List<Component> components = new ArrayList<>();
+    private final List<Updatable> updatableComponents = new ArrayList<>();
+    private final List<Renderable> renderableComponents = new ArrayList<>();
     private Transform transform;
     private HierarchicalWorld world;
 
@@ -31,19 +34,11 @@ public class GameObject {
     }
 
     void update() {
-        for (Component component : components) {
-            if (component instanceof Updatable) {
-                ((Updatable) component).update();
-            }
-            if (component instanceof Renderable) {
-                ((Renderable) component).render();
-            }
-            if (transform != null && parent.transform != null) {
-                Vector3f parentPosition = new Vector3f(parent.transform.getPosition());
-                Quaternionf parentRotation = new Quaternionf(parent.transform.getRotation());
-                transform.setPosition(parentPosition.add(transform.getLocalPosition()));
-                transform.setRotation(parentRotation.add(transform.getLocalRotation()));
-            }
+        for(Updatable component : updatableComponents){
+            component.update();
+        }
+        for(Renderable component : renderableComponents){
+            component.render();
         }
         for (GameObject object : children) {
             object.update();
@@ -93,6 +88,25 @@ public class GameObject {
         }
     }
 
+    public <T extends Component> T getComponent(Class<? extends Component> componentType){
+        for(var compo : components){
+            if(compo.getClass().equals(componentType)){
+                return (T) compo;
+            }
+        }
+        return null;
+    }
+
+    public <T> List<T> getComponents(Class<? extends Component> componentType){
+        List<T> result = new ArrayList<>();
+        for(var compo : components){
+            if(compo.getClass().equals(componentType)){
+                result.add((T) compo);
+            }
+        }
+        return result;
+    }
+
     public <T extends Component> T appendComponent(Class<T> componentType) {
         if (!checkMultipleComponent(componentType)) return null;
 
@@ -116,6 +130,12 @@ public class GameObject {
             this.transform = transform;
         } else {
             components.add(component);
+            if(component instanceof Updatable){
+                updatableComponents.add((Updatable) component);
+            }
+            if(component instanceof Renderable){
+                renderableComponents.add((Renderable) component);
+            }
         }
         return component;
     }
@@ -140,6 +160,12 @@ public class GameObject {
             transform = null;
             return;
         }
+        if(component instanceof Updatable){
+            updatableComponents.remove((Updatable) component);
+        }
+        if(component instanceof Renderable){
+            renderableComponents.remove((Renderable) component);
+        }
         components.remove(component);
     }
 
@@ -156,6 +182,14 @@ public class GameObject {
         for (GameObject object : children) {
             object.setWorld(w);
         }
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public static final class GameObjectBuilder {
