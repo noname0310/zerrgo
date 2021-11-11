@@ -6,6 +6,9 @@ import core.window.Window;
 import core.world.WorldContainer;
 import world.Time;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HierarchicalWorld implements WorldContainer {
     private Window window;
     private final Time time = Time.getInstance();
@@ -34,6 +37,21 @@ public class HierarchicalWorld implements WorldContainer {
     public void update() {
         time.Update();
         rootGameObject.update();
+    }
+
+    public GameObject findObjectWithName(String name) {
+        return internalFindObjectWithName(rootGameObject, name);
+    }
+
+
+    private GameObject internalFindObjectWithName(GameObject gameObject, String name){
+        if(gameObject.getName().equals(name))
+            return gameObject;
+
+        for(GameObject object : gameObject.children){
+            return internalFindObjectWithName(object, name);
+        }
+        return null;
     }
 
     public RenderScheduler getRenderScheduler() {

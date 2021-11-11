@@ -15,10 +15,10 @@ public final class Main {
                 .windowName("hello world")
                 .enableVsync()
                 .world(
-//                        new HierarchicalWorld(
-//                                new TestHierarchy()
-//                        )
-                        new OpenglTestWorld()
+                        new HierarchicalWorld(
+                                new TestHierarchy()
+                        )
+//                        new OpenglTestWorld()
                 )
                 .run();
     }

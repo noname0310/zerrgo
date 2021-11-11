@@ -17,7 +17,7 @@ public class GameObject {
     private boolean isEnabled = false;
     private String name;
     private GameObject parent;
-    private final List<GameObject> children = new ArrayList<>();
+    final List<GameObject> children = new ArrayList<>();
     private final List<Component> components = new ArrayList<>();
     private final List<Updatable> updatableComponents = new ArrayList<>();
     private final List<Renderable> renderableComponents = new ArrayList<>();
@@ -53,12 +53,12 @@ public class GameObject {
         return parent;
     }
 
-    public List<Component> getComponents() {
-        return components;
+    public Component[] getComponents() {
+        return (Component[]) components.toArray();
     }
 
-    public List<GameObject> getChildren() {
-        return children;
+    public GameObject[] getChildren() {
+        return (GameObject[]) children.toArray();
     }
 
     public void setEnabled(boolean enabled) {
@@ -70,15 +70,24 @@ public class GameObject {
         if (this.parent != null)
             this.parent.children.remove(this);
         this.parent = parent;
-        if (parent.getChildren().contains(this)) {
+        if (parent.children.contains(this)) {
             this.parent.children.add(this);
+        }
+        if(transform != null && parent.transform != null){
+            transform.changeParent(parent.transform);
         }
     }
 
     public void appendChild(GameObject object) {
         children.add(object);
+        if(object.parent != null){
+            object.parent.removeChild(object);
+        }
         object.world = world;
         object.parent = this;
+        if(transform != null && object.transform != null){
+            object.transform.changeParent(transform);
+        }
     }
 
     public void appendChildren(GameObject... objects) {
@@ -246,12 +255,19 @@ public class GameObject {
             }
         }
 
-        public GameObject build() {
-            for (var item : children) {
-                gameObject.appendChild(item.build());
-            }
+        public GameObject buildComponent() {
             for (var item : componentInitializeFuncList) {
                 item.execute();
+            }
+            for (GameObject object : gameObject.children) {
+
+            }
+            return gameObject;
+        }
+
+        public GameObject buildGameObject() {
+            for (var item : children) {
+                gameObject.appendChild(item.buildGameObject());
             }
             return gameObject;
         }
