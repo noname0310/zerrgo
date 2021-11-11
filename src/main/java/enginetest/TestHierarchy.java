@@ -28,6 +28,18 @@ public final class TestHierarchy implements HierarchicalScene {
                                         assetLoader.getTexture(
                                                 "src\\main\\resources\\20211104_102157-realesrgan.jpg"))
                         )
+                        .component(TestGameObjectRotator.class)
+                        .child(GameObject.CreateWith("childItem1")
+                                .component(Transform.class,
+                                        transform -> transform.setLocalPosition(new Vector3f(1, 0, 0)))
+                                .component(Sprite.class,
+                                        sprite -> sprite.setTexture(
+                                                assetLoader.getTexture(
+                                                        "src\\main\\resources\\20211104_102157-realesrgan.jpg"))
+                                )
+                                .component(TestGameObjectRotator.class)
+                                .component(TestParentReplacer.class)
+                        )
                 );
     }
 }

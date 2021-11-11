@@ -17,8 +17,8 @@ public class Sprite extends Component implements Renderable, Startable {
 
     @Override
     public void render() {
-       if (getGameObject().getTransform().isOutdated()) {
-           scheduler.updateTransform(id, getGameObject().getTransform().getMatrix());
+       if (true){//getGameObject().getTransform().isOutdated()) {
+           scheduler.updateTransform(id, getGameObject().getTransform().getWorldMatrix());
        }
     }
 
@@ -45,7 +45,7 @@ public class Sprite extends Component implements Renderable, Startable {
 
         if(getGameObject().getTransform() != null){
             id = getGameObject().getWorld().addRenderInstanceIdCounter();
-            scheduler.addInstance(id, model, getGameObject().getTransform().getMatrix());
+            scheduler.addInstance(id, model, getGameObject().getTransform().getWorldMatrix());
         }
         else{
             ZerrgoEngine.Logger().severe("GameObject of " + this + " is not positional.");

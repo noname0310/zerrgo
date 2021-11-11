@@ -1,94 +1,113 @@
 package world.hierarchical.component;
 
+import core.ZerrgoEngine;
 import org.joml.*;
+import org.lwjgl.system.CallbackI;
 import world.hierarchical.Component;
 import world.hierarchical.component.annotation.DisallowMultipleComponent;
 
 @DisallowMultipleComponent
 public class Transform extends Component {
-    private final Matrix4f matrix = new Matrix4f();
-    private final Matrix4f parentMatrix = new Matrix4f();
+    private final Matrix4f worldMatrix = new Matrix4f();
+    private Matrix4f parentMatrix = new Matrix4f();
     private final Matrix4f localMatrix = new Matrix4f();
-    private final Vector3f position;
+    private final Matrix4f tempMatrix = new Matrix4f();
     private final Vector3f localPosition;
-    private final Vector3f scale;
     private final Vector3f localScale;
-    private final Quaternionf rotation;
     private final Quaternionf localRotation;
-    private boolean isOutdated = true;
+
+    private Vector3f tempVector = new Vector3f();
+    private Quaternionf tempQuaternion = new Quaternionf();
 
     public Transform(){
-        scale = new Vector3f(1.0f,1.0f,1.0f);
+        parentMatrix.identity();
         localScale = new Vector3f(1.0f,1.0f,1.0f);
         localPosition = new Vector3f(0,0,0);
         localRotation = new Quaternionf();
-        position = new Vector3f(0,0,0);
-        rotation = new Quaternionf();
     }
 
-    boolean isOutdated() {
-        return isOutdated;
-    }
 
     public Vector3fc getPosition() {
-        return position;
+        Vector3f v = new Vector3f();
+        worldMatrix.getColumn(3, v);
+        return v;
     }
 
     public void setPosition(Vector3fc v) {
-        position.set(v);
-        isOutdated = true;
+        worldMatrix.getNormalizedRotation(tempQuaternion);
+        worldMatrix.getScale(tempVector);
+        tempMatrix.identity().translate(v).rotate(tempQuaternion).scale(tempVector);
+        worldMatrix.set(tempMatrix);
+        tempMatrix.set(parentMatrix).invert();
+        localMatrix.set(tempMatrix.mul(worldMatrix));
+        localMatrix.getColumn(3, tempVector);
+        localPosition.set(tempVector);
+        resetMatrix();
     }
 
     public Vector3fc getLocalPosition() {
         return localPosition;
     }
 
-    public Vector3fc setLocalPosition(Vector3fc v) {
+    public void setLocalPosition(Vector3fc v) {
         localPosition.set(v);
         resetMatrix();
-        isOutdated = true;
-        return localPosition;
     }
 
     public Vector3fc getScale() {
-        return scale;
+        Vector3f v = new Vector3f();
+        worldMatrix.getScale(v);
+        return v;
     }
 
-    public Vector3fc setScale(Vector3fc v) {
-        scale.set(v);
-        isOutdated = true;
-        return scale;
+    public void setScale(Vector3fc v) {
+        worldMatrix.getNormalizedRotation(tempQuaternion);
+        worldMatrix.getColumn(3, tempVector);
+        tempMatrix.identity().translate(tempVector).rotate(tempQuaternion).scale(v);
+        worldMatrix.set(tempMatrix);
+        tempMatrix.set(parentMatrix).invert();
+        localMatrix.set(tempMatrix.mul(worldMatrix));
+        localMatrix.getScale(tempVector);
+        localScale.set(tempVector);
+        resetMatrix();
     }
 
     public Vector3fc getLocalScale() {
         return localScale;
     }
 
-    public Vector3fc setLocalScale(Vector3fc v) {
+    public void setLocalScale(Vector3fc v) {
         localScale.set(v);
         resetMatrix();
-        isOutdated = true;
-        return localScale;
     }
 
     public Quaternionfc getRotation() {
-        return rotation;
+        Quaternionf q = new Quaternionf();
+        worldMatrix.getNormalizedRotation(q);
+        return q;
     }
 
     public void setRotation(Quaternionfc q) {
-        rotation.set(q);
-        isOutdated = true;
+        worldMatrix.getNormalizedRotation(tempQuaternion);
+        worldMatrix.getColumn(3, tempVector);
+        tempMatrix.identity().translate(tempVector).rotate(q);
+        worldMatrix.getScale(tempVector);
+        tempMatrix.scale(tempVector);
+        worldMatrix.set(tempMatrix);
+        tempMatrix.set(parentMatrix).invert();
+        localMatrix.set(tempMatrix.mul(worldMatrix));
+        localMatrix.rotation(tempQuaternion);
+        localRotation.set(tempQuaternion);
+        resetMatrix();
     }
 
     public Quaternionfc getLocalRotation() {
         return localRotation;
     }
 
-    public Quaternionfc setLocalRotation(Quaternionfc q) {
+    public void setLocalRotation(Quaternionfc q) {
         localRotation.set(q);
         resetMatrix();
-        isOutdated = true;
-        return localRotation;
     }
 
     private void resetMatrix(){
@@ -96,16 +115,19 @@ public class Transform extends Component {
                 .translate(localPosition)
                 .rotate(localRotation)
                 .scale(localScale);
+        worldMatrix.set(parentMatrix).mul(localMatrix);
     }
 
-    public Matrix4fc getMatrix() {
-        if(isOutdated) {
-            matrix.identity()
-                    .translate(position)
-                    .rotate(rotation)
-                    .scale(scale);
-        }
-        isOutdated = false;
-        return matrix;
+    public void changeParent(Transform newParentTransform) {
+        worldMatrix.set(parentMatrix);
+        worldMatrix.mul(localMatrix);
+
+        localMatrix.set(newParentTransform.worldMatrix).invert().mul(worldMatrix);
+        parentMatrix = newParentTransform.worldMatrix;
+    }
+
+    public Matrix4fc getWorldMatrix() {
+        worldMatrix.set(parentMatrix).mul(localMatrix);
+        return worldMatrix;
     }
 }
