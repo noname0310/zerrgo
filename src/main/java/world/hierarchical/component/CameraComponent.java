@@ -62,6 +62,12 @@ public class CameraComponent extends Component implements Updatable, Startable {
         isStarted = true;
     }
 
+    public Matrix4fc getViewMatrix(){
+        if(isPerspective)
+            return perspectiveCamera.getViewMatrix();
+        return orthographicCamera.getViewMatrix();
+    }
+
 
     public boolean isPerspective() {
         return isPerspective;

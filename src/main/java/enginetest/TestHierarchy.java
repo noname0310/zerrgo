@@ -16,7 +16,9 @@ public final class TestHierarchy implements HierarchicalScene {
                 .child(GameObject.CreateWith("player")
                         .component(Transform.class,
                                 transform -> transform.setPosition(new Vector3f(0, 0, 5f)))
-                        .component(CameraComponent.class))
+                        .component(CameraComponent.class)
+                        .component(CameraController.class))
+
 
                 .child(GameObject.CreateWith("item")
                         .component(Transform.class,
