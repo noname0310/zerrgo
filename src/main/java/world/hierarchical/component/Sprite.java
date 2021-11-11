@@ -31,17 +31,13 @@ public class Sprite extends Component implements Renderable, Startable {
                 assetLoader.getPlaneMesh(),
                 new Material(
                         id + "_mat",
-                        null,
+                        assetLoader.getTexture("src\\main\\resources\\20211104_102157-realesrgan.jpg"),
                         new Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
                         assetLoader.getShader(
                                 "src\\main\\resources\\shader\\standardTexture2d_vertex.glsl",
                                 "src\\main\\resources\\shader\\standardTexture2d_fragment.glsl"
                         )
                 ));
-    }
-
-    public void setTexture(Texture texture) {
-        model.getMaterialAt(0).setTexture(texture);
 
         if(getGameObject().getTransform() != null){
             id = getGameObject().getWorld().addRenderInstanceIdCounter();
@@ -51,5 +47,9 @@ public class Sprite extends Component implements Renderable, Startable {
             ZerrgoEngine.Logger().severe("GameObject of " + this + " is not positional.");
             getGameObject().removeComponent(this);
         }
+    }
+
+    public void setTexture(Texture texture) {
+        model.getMaterialAt(0).setTexture(texture);
     }
 }

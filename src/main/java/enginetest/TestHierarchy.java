@@ -1,6 +1,7 @@
 package enginetest;
 
 import core.graphics.AssetLoader;
+import core.graphics.resource.Texture;
 import org.joml.Vector3f;
 import world.hierarchical.GameObject;
 import world.hierarchical.HierarchicalScene;
@@ -55,6 +56,67 @@ public final class TestHierarchy implements HierarchicalScene {
                                 //.component(TestParentReplacer.class)
                                 )
                         )
+                )
+                .child(GameObject.CreateWith("yungi")
+                        .component(Transform.class)
+                        .component(PlayerController.class)
+                        .component(Sprite.class, sprite -> sprite.setTexture(
+                                assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi0.png")
+                        ))
+                        .component(SpriteAnimator.class, animator -> {
+                            animator.addAnimationClip(
+                                    "down_move",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi0.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi1.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi2.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi3.png"),
+                                    });
+                            animator.addAnimationClip(
+                                    "down_idle",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi0.png")
+                                    });
+                            animator.addAnimationClip(
+                                    "right_move",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi4.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi5.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi6.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi7.png"),
+                                    });
+                            animator.addAnimationClip(
+                                    "right_idle",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi4.png"),
+                                    });
+                            animator.addAnimationClip(
+                                    "up_move",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi8.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi9.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi10.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi11.png"),
+                                    });
+                            animator.addAnimationClip(
+                                    "up_idle",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi8.png"),
+                                    });
+                            animator.addAnimationClip(
+                                    "left_move",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi12.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi13.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi14.png"),
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi15.png"),
+                                    });
+                            animator.addAnimationClip(
+                                    "left_idle",
+                                    new Texture[] {
+                                            assetLoader.getTexture("src\\main\\resources\\yungi\\Yungi12.png"),
+                                    });
+                        })
                 );
     }
 }
