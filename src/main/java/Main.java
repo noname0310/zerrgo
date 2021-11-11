@@ -3,6 +3,7 @@ import enginetest.TestHierarchy;
 import graphics.opengl.OpenglRenderer;
 import window.glfw.GlfwWindowFactory;
 import world.hierarchical.HierarchicalWorld;
+import world.opengltest.GcTestWorld;
 import world.opengltest.OpenglTestWorld;
 
 public final class Main {

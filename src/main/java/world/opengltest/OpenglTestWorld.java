@@ -1,5 +1,6 @@
 package world.opengltest;
 
+import core.ZerrgoEngine;
 import core.graphics.AssetLoader;
 import core.graphics.RenderScheduler;
 import core.graphics.record.Camera;
@@ -13,21 +14,24 @@ import org.joml.*;
 
 import java.lang.Math;
 
-public class OpenglTestWorld implements WorldContainer {
+public final class OpenglTestWorld implements WorldContainer {
     private RenderScheduler renderScheduler;
 
     private final Vector3f takahiroPosition = new Vector3f();
     private final Quaternionf takahiroRotation = new Quaternionf();
     private final Matrix4f takahiroTransformMatrix = new Matrix4f();
 
-    private final Matrix4f pikaTransformMatrix = new Matrix4f().translate(2, 0, 0);
+    private Matrix4f pikaTransformMatrix = new Matrix4f().translate(2, 0, 0);
 
-    private final Vector3f pikaParentPosition = new Vector3f();
-    private final Quaternionf pikaParentRotation = new Quaternionf();
     private final Matrix4f pikaParentTransformMatrix = new Matrix4f();
+
+    private final Matrix4f pikaParent2TransformMatrix = new Matrix4f().translate(2, 0, 0);
+
+    private Matrix4f pikaCurrentParentTransformMatrix = pikaParentTransformMatrix;
 
     private final Matrix4f pikaWorldTransformMatrix = new Matrix4f();
     private float a = 0;
+    private int frameCount = 0;
 
     private Camera camera;
     private final Vector3f cameraPosition = new Vector3f(0, 0, 10);
@@ -131,6 +135,7 @@ public class OpenglTestWorld implements WorldContainer {
     @Override
     public void update() {
         a += 0.05f;
+        frameCount += 1;
 
         takahiroRotation.rotateZ((float) Math.toRadians(1f));
         takahiroPosition.set(Math.cos(a), Math.sin(a), -1.5f);
@@ -140,11 +145,30 @@ public class OpenglTestWorld implements WorldContainer {
                         .rotate(takahiroRotation)
         );
 
-        pikaParentRotation.rotateZ((float) Math.toRadians(1f));
-        pikaParentTransformMatrix
-                .identity().translate(pikaParentPosition).rotate(pikaParentRotation);
 
-        pikaParentTransformMatrix.mul(pikaTransformMatrix, pikaWorldTransformMatrix);
+        if (frameCount % 120 == 0) {
+            Matrix4f prevParent;
+            if (pikaCurrentParentTransformMatrix == pikaParentTransformMatrix) {
+                pikaCurrentParentTransformMatrix = pikaParent2TransformMatrix;
+                prevParent = pikaParentTransformMatrix;
+            } else {
+                pikaCurrentParentTransformMatrix = pikaParentTransformMatrix;
+                prevParent = pikaParent2TransformMatrix;
+            }
+
+            var prevWorldTransform = new Matrix4f();
+            prevParent.mul(pikaTransformMatrix, prevWorldTransform);
+
+            var invertMatrix = new Matrix4f();
+            pikaCurrentParentTransformMatrix.invert(invertMatrix);
+
+            pikaTransformMatrix = invertMatrix.mul(prevWorldTransform);
+        }
+
+        pikaCurrentParentTransformMatrix.rotateZ((float) Math.toRadians(1f));
+
+        pikaCurrentParentTransformMatrix.mul(pikaTransformMatrix, pikaWorldTransformMatrix);
+
         renderScheduler.updateTransform(2, pikaWorldTransformMatrix);
 
         if (wPressed) {
