@@ -25,23 +25,22 @@ public class Sprite extends Component implements Renderable, Startable {
 
     @Override
     public void start() {
-        scheduler = getGameObject().getWorld().getRenderScheduler();
-        var assetLoader = getGameObject().getWorld().getAssetLoader();
-        this.model = assetLoader.addModel(
-                "(" + id + ")model",
-                assetLoader.getPlaneMesh(),
-                new Material(
-                        id + "_mat",
-                        assetLoader.getTexture("src\\main\\resources\\20211104_102157-realesrgan.jpg"),
-                        new Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
-                        assetLoader.getShader(
-                                "src\\main\\resources\\shader\\standardTexture2d_vertex.glsl",
-                                "src\\main\\resources\\shader\\standardTexture2d_fragment.glsl"
-                        )
-                ));
-
         if(getGameObject().getTransform() != null){
             id = getGameObject().getWorld().addRenderInstanceIdCounter();
+            scheduler = getGameObject().getWorld().getRenderScheduler();
+            var assetLoader = getGameObject().getWorld().getAssetLoader();
+            this.model = assetLoader.addModel(
+                    "(" + id + ")model",
+                    assetLoader.getPlaneMesh(),
+                    new Material(
+                            id + "_mat",
+                            assetLoader.getTexture("src\\main\\resources\\20211104_102157-realesrgan.jpg"),
+                            new Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
+                            assetLoader.getShader(
+                                    "src\\main\\resources\\shader\\standardTexture2d_vertex.glsl",
+                                    "src\\main\\resources\\shader\\standardTexture2d_fragment.glsl"
+                            )
+                    ));
             scheduler.addInstance(id, model, getGameObject().getTransform().getWorldMatrix());
         }
         else{
@@ -52,6 +51,8 @@ public class Sprite extends Component implements Renderable, Startable {
 
     public void setTexture(Texture texture) {
         model.getMaterialAt(0).setTexture(texture);
-        getGameObject().getTransform().setLocalScale(new Vector3f(1.0f, texture.getHeight() / (float)texture.getWidth(), 1.0f));
+        getGameObject()
+                .getTransform()
+                .setLocalScale(new Vector3f(1.0f, texture.getHeight() / (float)texture.getWidth(), 1.0f));
     }
 }

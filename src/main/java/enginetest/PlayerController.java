@@ -14,6 +14,13 @@ public class PlayerController extends Component implements Startable, Updatable 
     private boolean rightPressed;
     private boolean leftPressed;
     private SpriteAnimator spriteAnimator;
+    private int state;
+    private static final int UP_MOVE = 510;
+    private static final int UP_IDLE = 243;
+    private static final int DOWN_MOVE = 374;
+    private static final int DOWN_IDLE = 552;
+    private static final int RIGHT_MOVE = 284;
+    private static final int LEFT_MOVE = 503;
 
     @Override
     public void start() {
