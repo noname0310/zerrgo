@@ -10,6 +10,7 @@ import core.window.event.KeyAction;
 import core.window.event.KeyCode;
 import core.window.event.MouseCode;
 import core.world.WorldContainer;
+import enginetest.ObjLoader;
 import org.joml.*;
 
 import java.lang.Math;
@@ -63,7 +64,7 @@ public final class OpenglTestWorld implements WorldContainer {
                 (float) Math.toRadians(60),
                 window.getFrameBufferWidth() / (float) window.getFrameBufferHeight(),
                 0.2f,
-                100.0f,
+                5000.0f,
                 cameraPosition,
                 cameraRotation,
                 new Vector4f(0.5f, 0.5f, 0.5f, 1.0f)
@@ -82,6 +83,7 @@ public final class OpenglTestWorld implements WorldContainer {
         renderScheduler.addInstance(1, model, takahiroTransformMatrix);
         renderScheduler.addInstance(2, model2, pikaTransformMatrix);
         renderScheduler.addInstance(3, model3, new Matrix4f().scale(1.0f, textureRatio, 1.0f));
+
 
         window.getInputHandler().addOnKeyListener((keyCode, action, modifier) -> {
             if (keyCode == KeyCode.W) {
@@ -157,6 +159,15 @@ public final class OpenglTestWorld implements WorldContainer {
             }
 
             var prevWorldTransform = new Matrix4f();
+
+            Quaternionf quaternionf = new Quaternionf();
+            Vector3f scale = new Vector3f();
+            Vector3f position = new Vector3f();
+
+            prevWorldTransform.getNormalizedRotation(quaternionf);
+            prevWorldTransform.getScale(scale);
+            prevWorldTransform.getRow(3, position);
+
             prevParent.mul(pikaTransformMatrix, prevWorldTransform);
 
             var invertMatrix = new Matrix4f();
