@@ -29,8 +29,10 @@ public class HierarchicalWorld implements WorldContainer {
         this.assetLoader = assetLoader;
 
         var gameObjectBuilder = hierarchicalScene.create(assetLoader);
-        gameObjectBuilder.initialize(this);
         rootGameObject = gameObjectBuilder.build();
+        rootGameObject.setWorld(this);
+        rootGameObject.start();
+        gameObjectBuilder.initialize();
     }
 
     @Override
@@ -44,11 +46,11 @@ public class HierarchicalWorld implements WorldContainer {
     }
 
 
-    private GameObject internalFindObjectWithName(GameObject gameObject, String name){
-        if(gameObject.getName().equals(name))
+    private GameObject internalFindObjectWithName(GameObject gameObject, String name) {
+        if (gameObject.getName().equals(name))
             return gameObject;
 
-        for(GameObject object : gameObject.children){
+        for (GameObject object : gameObject.children) {
             return internalFindObjectWithName(object, name);
         }
         return null;

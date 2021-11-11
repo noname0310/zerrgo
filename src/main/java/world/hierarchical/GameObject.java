@@ -1,8 +1,6 @@
 package world.hierarchical;
 
 import core.ZerrgoEngine;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import world.hierarchical.component.Transform;
 import world.hierarchical.component.annotation.DisallowMultipleComponent;
 import world.hierarchical.component.characteristics.Renderable;
@@ -24,7 +22,7 @@ public class GameObject {
     private Transform transform;
     private HierarchicalWorld world;
 
-    private GameObject(String name){
+    private GameObject(String name) {
         this.name = name;
     }
 
@@ -38,13 +36,14 @@ public class GameObject {
     }
 
     void update() {
-        for(Updatable component : updatableComponents){
+        for (Updatable component : updatableComponents) {
             component.update();
         }
-        for(Renderable component : renderableComponents){
+        for (Renderable component : renderableComponents) {
             component.render();
         }
         for (GameObject object : children) {
+            if (object == null) continue;
             object.update();
         }
     }
@@ -54,11 +53,15 @@ public class GameObject {
     }
 
     public Component[] getComponents() {
-        return (Component[]) components.toArray();
+        var componentsArray = new Component[components.size()];
+        components.toArray(componentsArray);
+        return componentsArray;
     }
 
     public GameObject[] getChildren() {
-        return (GameObject[]) children.toArray();
+        var childrenArray = new GameObject[children.size()];
+        children.toArray(childrenArray);
+        return childrenArray;
     }
 
     public void setEnabled(boolean enabled) {
@@ -67,44 +70,65 @@ public class GameObject {
 
     public void setParent(GameObject parent) {
         world = parent.world;
-        if (this.parent != null)
-            this.parent.children.remove(this);
+        if (this.parent != null) {
+            for (int i = 0; i < this.parent.children.size(); ++i) {
+                if (this.parent.children.get(i) == this) {
+                    this.parent.children.set(i, null);
+                }
+            }
+        }
         this.parent = parent;
         if (parent.children.contains(this)) {
-            this.parent.children.add(this);
+            var addedAtNull = false;
+            for (int i = 0; i < this.parent.children.size(); ++i) {
+                if (this.parent.children.get(i) == null) {
+                    this.parent.children.set(i, this);
+                    addedAtNull = true;
+                    break;
+                }
+            }
+            if (!addedAtNull) this.parent.children.add(this);
         }
-        if(transform != null && parent.transform != null){
+        if (transform != null && parent.transform != null) {
             transform.changeParent(parent.transform);
         }
     }
 
     public void appendChild(GameObject object) {
-        children.add(object);
-        if(object.parent != null){
+        var addedAtNull = false;
+        for (int i = 0; i < children.size(); ++i) {
+            if (children.get(i) == null) {
+                children.set(i, object);
+                addedAtNull = true;
+                break;
+            }
+        }
+        if (!addedAtNull) children.add(object);
+        if (object.parent != null) {
             object.parent.removeChild(object);
         }
         object.world = world;
         object.parent = this;
-        if(transform != null && object.transform != null){
+        if (transform != null && object.transform != null) {
             object.transform.changeParent(transform);
         }
     }
 
-    public void appendChildren(GameObject... objects) {
-        for (var go : objects) appendChild(go);
-    }
-
     public void removeChild(GameObject object) {
-        children.remove(object);
+        for (int i = 0; i < children.size(); ++i) {
+            if (children.get(i) == object) {
+                children.set(i, null);
+            }
+        }
         if (object.getParent() == this) {
             object.parent = null;
         }
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Component> T getComponent(Class<? extends Component> componentType){
-        for(var compo : components){
-            if(compo.getClass().equals(componentType)){
+    public <T extends Component> T getComponent(Class<? extends Component> componentType) {
+        for (var compo : components) {
+            if (compo.getClass().equals(componentType)) {
                 return (T) compo;
             }
         }
@@ -112,10 +136,10 @@ public class GameObject {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Component> List<T> getComponents(Class<? extends Component> componentType){
+    public <T extends Component> List<T> getComponents(Class<? extends Component> componentType) {
         List<T> result = new ArrayList<>();
-        for(var compo : components){
-            if(compo.getClass().equals(componentType)){
+        for (var compo : components) {
+            if (compo.getClass().equals(componentType)) {
                 result.add((T) compo);
             }
         }
@@ -145,11 +169,11 @@ public class GameObject {
             this.transform = transform;
         } else {
             components.add(component);
-            if(component instanceof Updatable){
-                updatableComponents.add((Updatable) component);
+            if (component instanceof Updatable updatable) {
+                updatableComponents.add(updatable);
             }
-            if(component instanceof Renderable){
-                renderableComponents.add((Renderable) component);
+            if (component instanceof Renderable renderable) {
+                renderableComponents.add(renderable);
             }
         }
         return component;
@@ -175,10 +199,10 @@ public class GameObject {
             transform = null;
             return;
         }
-        if(component instanceof Updatable){
+        if (component instanceof Updatable) {
             updatableComponents.remove((Updatable) component);
         }
-        if(component instanceof Renderable){
+        if (component instanceof Renderable) {
             renderableComponents.remove((Renderable) component);
         }
         components.remove(component);
@@ -210,7 +234,7 @@ public class GameObject {
     public static final class GameObjectBuilder {
         private final GameObject gameObject;
         private final List<GameObjectBuilder> children;
-        private final List<InternalComponentInitializeFunc<? extends Component>> componentInitializeFuncList;
+        private final List<InternalComponentInitializeFunc> componentInitializeFuncList;
 
         private GameObjectBuilder(GameObject gameObject) {
             this.gameObject = gameObject;
@@ -227,7 +251,7 @@ public class GameObject {
             void execute(T component);
         }
 
-        private interface InternalComponentInitializeFunc<T extends Component> {
+        private interface InternalComponentInitializeFunc {
             void execute();
         }
 
@@ -247,28 +271,14 @@ public class GameObject {
             return this;
         }
 
-        public void initialize(HierarchicalWorld world) {
-            gameObject.setWorld(world);
-            gameObject.start();
-            for (var child : children) {
-                child.initialize(world);
-            }
-        }
-
-        public GameObject buildComponent() {
-            for (var item : componentInitializeFuncList) {
-                item.execute();
-            }
-            for (GameObject object : gameObject.children) {
-
-            }
+        public GameObject build() {
+            for (var item : children) gameObject.appendChild(item.build());
             return gameObject;
         }
 
-        public GameObject buildGameObject() {
-            for (var item : children) {
-                gameObject.appendChild(item.buildGameObject());
-            }
+        public GameObject initialize() {
+            for (var item : componentInitializeFuncList) item.execute();
+            for (var item : children) item.initialize();
             return gameObject;
         }
     }
