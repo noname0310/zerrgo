@@ -18,7 +18,9 @@ public final class TestHierarchy implements HierarchicalScene {
                                 transform -> transform.setPosition(new Vector3f(0, 0, 5f)))
                         .component(CameraComponent.class))
 
-                .child(GameObject.CreateWith("item"))
+                .child(GameObject.CreateWith("item")
+                        .component(Transform.class,
+                                transform -> transform.setPosition(new Vector3f(-1, 0, 0))))
 
                 .child(GameObject.CreateWith("item2")
                         .component(Transform.class,
@@ -38,7 +40,18 @@ public final class TestHierarchy implements HierarchicalScene {
                                                         "src\\main\\resources\\20211104_102157-realesrgan.jpg"))
                                 )
                                 .component(TestGameObjectRotator.class)
-                                .component(TestParentReplacer.class)
+                                .child(GameObject.CreateWith("childItem2")
+                                        .component(Transform.class,
+                                                transform -> transform.setLocalPosition(new Vector3f(1, 0, 0)))
+                                        .component(Sprite.class,
+                                                sprite -> sprite.setTexture(
+                                                        assetLoader.getTexture(
+                                                                "src\\main\\resources\\20211104_102157-realesrgan.jpg"))
+                                        )
+                                        .component(TestGameObjectRotator.class)
+                                .component(TestGameObjectRotator.class)
+                                //.component(TestParentReplacer.class)
+                                )
                         )
                 );
     }

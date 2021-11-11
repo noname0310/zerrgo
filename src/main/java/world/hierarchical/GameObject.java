@@ -48,6 +48,25 @@ public class GameObject {
         }
     }
 
+    public void updateChildTransforms(){
+        for(GameObject child : children){
+            if(child != null) {
+                child.updateTransform();
+            }
+        }
+    }
+
+    void updateTransform(){
+        if(transform != null){
+            transform.resetMatrix();
+        }
+        for(GameObject child : children){
+            if(child != null) {
+                child.updateTransform();
+            }
+        }
+    }
+
     public GameObject getParent() {
         return parent;
     }
@@ -78,17 +97,15 @@ public class GameObject {
             }
         }
         this.parent = parent;
-        if (parent.children.contains(this)) {
-            var addedAtNull = false;
-            for (int i = 0; i < this.parent.children.size(); ++i) {
-                if (this.parent.children.get(i) == null) {
-                    this.parent.children.set(i, this);
-                    addedAtNull = true;
-                    break;
-                }
+        var addedAtNull = false;
+        for (int i = 0; i < this.parent.children.size(); ++i) {
+            if (this.parent.children.get(i) == null) {
+                this.parent.children.set(i, this);
+                addedAtNull = true;
+                break;
             }
-            if (!addedAtNull) this.parent.children.add(this);
         }
+        if (!addedAtNull) this.parent.children.add(this);
         if (transform != null && parent.transform != null) {
             transform.changeParent(parent.transform);
         }

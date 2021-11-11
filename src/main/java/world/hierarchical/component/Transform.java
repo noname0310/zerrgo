@@ -34,14 +34,13 @@ public class Transform extends Component {
     }
 
     public void setPosition(Vector3fc v) {
-        worldMatrix.getNormalizedRotation(tempQuaternion);
+        worldMatrix.getUnnormalizedRotation(tempQuaternion);
         worldMatrix.getScale(tempVector);
         tempMatrix.identity().translate(v).rotate(tempQuaternion).scale(tempVector);
         worldMatrix.set(tempMatrix);
         tempMatrix.set(parentMatrix).invert();
         localMatrix.set(tempMatrix.mul(worldMatrix));
-        localMatrix.getColumn(3, tempVector);
-        localPosition.set(tempVector);
+        localMatrix.getColumn(3, localPosition);
         resetMatrix();
     }
 
@@ -61,14 +60,13 @@ public class Transform extends Component {
     }
 
     public void setScale(Vector3fc v) {
-        worldMatrix.getNormalizedRotation(tempQuaternion);
+        worldMatrix.getUnnormalizedRotation(tempQuaternion);
         worldMatrix.getColumn(3, tempVector);
         tempMatrix.identity().translate(tempVector).rotate(tempQuaternion).scale(v);
         worldMatrix.set(tempMatrix);
         tempMatrix.set(parentMatrix).invert();
         localMatrix.set(tempMatrix.mul(worldMatrix));
-        localMatrix.getScale(tempVector);
-        localScale.set(tempVector);
+        localMatrix.getScale(localScale);
         resetMatrix();
     }
 
@@ -83,21 +81,21 @@ public class Transform extends Component {
 
     public Quaternionfc getRotation() {
         Quaternionf q = new Quaternionf();
-        worldMatrix.getNormalizedRotation(q);
+        worldMatrix.getUnnormalizedRotation(q);
         return q;
     }
 
     public void setRotation(Quaternionfc q) {
-        worldMatrix.getNormalizedRotation(tempQuaternion);
         worldMatrix.getColumn(3, tempVector);
         tempMatrix.identity().translate(tempVector).rotate(q);
+
         worldMatrix.getScale(tempVector);
         tempMatrix.scale(tempVector);
         worldMatrix.set(tempMatrix);
+
         tempMatrix.set(parentMatrix).invert();
         localMatrix.set(tempMatrix.mul(worldMatrix));
-        localMatrix.rotation(tempQuaternion);
-        localRotation.set(tempQuaternion);
+        localMatrix.getUnnormalizedRotation(localRotation);
         resetMatrix();
     }
 
@@ -110,20 +108,28 @@ public class Transform extends Component {
         resetMatrix();
     }
 
-    private void resetMatrix(){
+    public void resetMatrix(){
         localMatrix.identity()
                 .translate(localPosition)
                 .rotate(localRotation)
                 .scale(localScale);
         worldMatrix.set(parentMatrix).mul(localMatrix);
+        getGameObject().updateChildTransforms();
     }
 
     public void changeParent(Transform newParentTransform) {
-        worldMatrix.set(parentMatrix);
-        worldMatrix.mul(localMatrix);
+        worldMatrix.set(parentMatrix).mul(localMatrix);
 
-        localMatrix.set(newParentTransform.worldMatrix).invert().mul(worldMatrix);
+        tempMatrix.set(newParentTransform.localMatrix).invert()
+                .mul(parentMatrix).mul(localMatrix);
+        localMatrix.set(tempMatrix);
         parentMatrix = newParentTransform.worldMatrix;
+
+
+        localMatrix.getColumn(3, localPosition);
+        localMatrix.getNormalizedRotation(localRotation);
+        localMatrix.getScale(localScale);
+        getGameObject().updateChildTransforms();
     }
 
     public Matrix4fc getWorldMatrix() {

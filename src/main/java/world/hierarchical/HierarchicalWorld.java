@@ -51,7 +51,11 @@ public class HierarchicalWorld implements WorldContainer {
             return gameObject;
 
         for (GameObject object : gameObject.children) {
-            return internalFindObjectWithName(object, name);
+            var obj1 = internalFindObjectWithName(object, name);
+            if(obj1 == null){
+                continue;
+            }
+            return obj1;
         }
         return null;
     }
