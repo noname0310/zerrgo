@@ -3,6 +3,7 @@ import enginetest.TestHierarchy;
 import graphics.opengl.OpenglRenderer;
 import window.glfw.GlfwWindowFactory;
 import world.hierarchical.HierarchicalWorld;
+import world.opengltest.OpenglTestWorld;
 
 public final class Main {
     public static void main(String[] args) {
@@ -13,9 +14,10 @@ public final class Main {
                 .windowName("hello world")
                 .enableVsync()
                 .world(
-                        new HierarchicalWorld(
-                                new TestHierarchy()
-                        )
+//                        new HierarchicalWorld(
+//                                new TestHierarchy()
+//                        )
+                        new OpenglTestWorld()
                 )
                 .run();
     }

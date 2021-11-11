@@ -60,14 +60,17 @@ public final class ZerrgoEngine {
         window.vsync(engineBuilder.getVsync());
         window.show();
 
+        /* Renderer initialize */
         this.renderer = engineBuilder.getRenderer();
         renderer.initialize(window.getFrameBufferWidth(), window.getFrameBufferHeight());
 
         window.addOnFramebufferSizeListener(renderer::resizeFrameBuffer);
 
+        /* World initialize */
         this.world = engineBuilder.getWorldContainer();
         world.initialize(window, renderer.getScheduler(), renderer.getAssetLoader());
 
+        /* game loop */
         loop();
 
         renderer.terminate();

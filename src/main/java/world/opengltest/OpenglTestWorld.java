@@ -20,9 +20,13 @@ public class OpenglTestWorld implements WorldContainer {
     private final Quaternionf takahiroRotation = new Quaternionf();
     private final Matrix4f takahiroTransformMatrix = new Matrix4f();
 
-    private final Vector3f pikaPosition = new Vector3f();
-    private final Quaternionf pikaRotation = new Quaternionf();
-    private final Matrix4f pikaTransformMatrix = new Matrix4f();
+    private final Matrix4f pikaTransformMatrix = new Matrix4f().translate(2, 0, 0);
+
+    private final Vector3f pikaParentPosition = new Vector3f();
+    private final Quaternionf pikaParentRotation = new Quaternionf();
+    private final Matrix4f pikaParentTransformMatrix = new Matrix4f();
+
+    private final Matrix4f pikaWorldTransformMatrix = new Matrix4f();
     private float a = 0;
 
     private Camera camera;
@@ -136,12 +140,12 @@ public class OpenglTestWorld implements WorldContainer {
                         .rotate(takahiroRotation)
         );
 
-        pikaPosition.set(Math.sin(a), Math.cos(a), 1.5f);
-        renderScheduler.updateTransform(2,
-                pikaTransformMatrix.identity()
-                        .translate(pikaPosition)
-                        .rotate(pikaRotation)
-        );
+        pikaParentRotation.rotateZ((float) Math.toRadians(1f));
+        pikaParentTransformMatrix
+                .identity().translate(pikaParentPosition).rotate(pikaParentRotation);
+
+        pikaParentTransformMatrix.mul(pikaTransformMatrix, pikaWorldTransformMatrix);
+        renderScheduler.updateTransform(2, pikaWorldTransformMatrix);
 
         if (wPressed) {
             cameraPosition.add(camera.getViewMatrix().positiveZ(new Vector3f()).mul(-0.1f));
