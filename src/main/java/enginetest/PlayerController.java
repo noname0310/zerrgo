@@ -27,28 +27,40 @@ public class PlayerController extends Component implements Startable, Updatable 
                 upPressed = true;
                 spriteAnimator.playAnimation("up_move");
             }
-            else if (action == KeyAction.RELEASE) upPressed = false;
+            else if (action == KeyAction.RELEASE) {
+                upPressed = false;
+                spriteAnimator.playAnimation("up_idle");
+            }
         }
         if (key == KeyCode.DOWN) {
             if (action == KeyAction.PRESS) {
                 downPressed = true;
                 spriteAnimator.playAnimation("down_move");
             }
-            else if (action == KeyAction.RELEASE) downPressed = false;
+            else if (action == KeyAction.RELEASE) {
+                downPressed = false;
+                spriteAnimator.playAnimation("down_idle");
+            }
         }
         if (key == KeyCode.RIGHT) {
             if (action == KeyAction.PRESS) {
                 rightPressed = true;
                 spriteAnimator.playAnimation("right_move");
             }
-            else if (action == KeyAction.RELEASE) rightPressed = false;
+            else if (action == KeyAction.RELEASE) {
+                rightPressed = false;
+                spriteAnimator.playAnimation("right_idle");
+            }
         }
         if (key == KeyCode.LEFT) {
             if (action == KeyAction.PRESS) {
                 leftPressed = true;
                 spriteAnimator.playAnimation("left_move");
             }
-            else if (action == KeyAction.RELEASE) leftPressed = false;
+            else if (action == KeyAction.RELEASE) {
+                leftPressed = false;
+                spriteAnimator.playAnimation("left_idle");
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import core.graphics.RenderScheduler;
 import core.graphics.record.Material;
 import core.graphics.resource.Model;
 import core.graphics.resource.Texture;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import world.hierarchical.Component;
 import world.hierarchical.component.characteristics.Renderable;
@@ -51,5 +52,6 @@ public class Sprite extends Component implements Renderable, Startable {
 
     public void setTexture(Texture texture) {
         model.getMaterialAt(0).setTexture(texture);
+        getGameObject().getTransform().setLocalScale(new Vector3f(1.0f, texture.getHeight() / (float)texture.getWidth(), 1.0f));
     }
 }

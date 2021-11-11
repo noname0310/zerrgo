@@ -15,7 +15,7 @@ public class SpriteAnimator extends Component implements Startable, Updatable {
     private Texture[] currentAnimation;
 
     private Sprite sprite;
-    private float animationDelay = 0.5f;
+    private float animationDelay = 0.1f;
     private float currentDelay = 0.0f;
     private int currentFrame = 0;
 
