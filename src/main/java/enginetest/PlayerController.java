@@ -20,7 +20,7 @@ public class PlayerController extends Component implements Startable, Updatable 
     private static final int DOWN_MOVE = 374;
     private static final int DOWN_IDLE = 552;
     private static final int RIGHT_MOVE = 284;
-    private static final int LEFT_MOVE = 503;
+    private static final int LEFT_MOVE = 135;
 
     @Override
     public void start() {

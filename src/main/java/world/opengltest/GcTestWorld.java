@@ -11,7 +11,7 @@ public final class GcTestWorld implements WorldContainer {
 
     @Override
     public void initialize(Window window, RenderScheduler renderScheduler, AssetLoader assetLoader) {
-        var texture = assetLoader.getTexture("src/main/resources/20211104_102157-realesrgan.jpg");
+        texture = assetLoader.getTexture("src/main/resources/20211104_102157-realesrgan.jpg");
     }
 
     @Override

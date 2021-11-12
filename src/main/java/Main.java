@@ -18,7 +18,8 @@ public final class Main {
                         new HierarchicalWorld(
                                 new TestHierarchy()
                         )
-//                        new OpenglTestWorld()
+                        //new OpenglTestWorld()
+                        //new GcTestWorld()
                 )
                 .run();
     }
